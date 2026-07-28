@@ -10,7 +10,7 @@ https://crates.io/crates/dnet
 
 ## Usage
 
-See [examples](https://github.com/druntime/dnet/tree/master/dnet/examples). 
+See [examples](https://github.com/druntime/dnet/tree/main/dnet/examples). 
 
 ## Supported Transports
 
