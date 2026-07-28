@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "dnet",
     "dnet-base",
+    "dnet-codecs",
     "dnet-tests",
     "dnet-macros",
     "dnet-utils",
@@ -28,3 +29,11 @@ js-sys = "0.3"
 js-utils = "0.1"
 dportable = "0.1"
 tracing = "0.1"
+
+dnet-base = { path = "dnet-base" }
+dnet-codecs = { path = "dnet-codecs" }
+dnet-tests = { path = "dnet-tests" }
+dnet-macros = { path = "dnet-macros" }
+dnet-utils = { path = "dnet-utils" }
+dnet-js = { path = "dnet-js" }
+dnet-rpc = { path = "dnet-rpc" }

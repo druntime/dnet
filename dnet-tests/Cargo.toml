@@ -15,7 +15,7 @@ default = []
 logging = ["dnet-base/logging"]
 
 [dependencies]
-dnet-base = { path = "../dnet-base" }
+dnet-base = { workspace = true  }
 dportable = { workspace = true }
 futures = { workspace = true }
 

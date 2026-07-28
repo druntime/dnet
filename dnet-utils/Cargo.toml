@@ -24,7 +24,7 @@ default = [
     "void",
     "wall",
 ]
-logging = ["dnet-base/logging", "dnet-tests/logging",]
+logging = ["dnet-base/logging", "dnet-tests/logging"]
 channel = []
 pipe = ["dportable"]
 merged = []
@@ -38,7 +38,7 @@ void = []
 wall = []
 
 [dependencies]
-dnet-base = { path = "../dnet-base" }
+dnet-base = { workspace = true }
 dportable = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 pin-project = { workspace = true }

@@ -15,9 +15,9 @@ default = []
 logging = ["dnet-base/logging", "dnet-tests/logging"]
 
 [dependencies]
-dnet-base = { path = "../dnet-base" }
-dnet-macros = { path = "../dnet-macros" }
-dnet-utils = { path = "../dnet-utils" }
+dnet-base = { workspace = true }
+dnet-macros = { workspace = true }
+dnet-utils = { workspace = true }
 serde = { workspace = true }
 futures = { workspace = true }
 pin-project = { workspace = true }

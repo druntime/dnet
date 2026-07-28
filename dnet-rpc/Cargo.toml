@@ -16,14 +16,14 @@ default = []
 logging = ["dnet-base/logging", "dnet-tests/logging"]
 
 [dependencies]
-dnet-base = { path = "../dnet-base" }
-dnet-macros = { path = "../dnet-macros" }
-dnet-utils = { path = "../dnet-utils" }
+dnet-base = { workspace = true }
+dnet-macros = { workspace = true }
+dnet-utils = { workspace = true }
 dportable = { workspace = true }
 serde = { workspace = true }
 pin-project = { workspace = true }
 futures = { workspace = true }
-atomic-counter = "1" 
+atomic-counter = "1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 dnet-js = { path = "../dnet-js" }

@@ -15,7 +15,7 @@ default = ["bincode", "json"]
 json = ["serde_json"]
 
 [dependencies]
-dnet-base = { path = "../dnet-base" }
+dnet-base = { workspace = true }
 serde = { workspace = true }
 bincode = { version = "2", default-features = false, features = [
     "std",

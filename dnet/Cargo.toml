@@ -11,7 +11,7 @@ keywords = ["message", "message-passing", "communication"]
 categories = ["network-programming"]
 
 [features]
-default = [ 
+default = [
     "codecs",
     "utils",
     "rpc",
@@ -48,12 +48,12 @@ message_port = ["utils", "dnet-macros"]
 webworker = ["utils", "message_port", "dnet-macros"]
 
 [dependencies]
-dnet-base = { path = "../dnet-base" }
-dnet-js = { path = "../dnet-js" }
-dnet-macros = { path = "../dnet-macros", optional = true }
-dnet-utils = { path = "../dnet-utils", optional = true }
-dnet-codecs = { path = "../dnet-codecs", optional = true }
-dnet-rpc = { path = "../dnet-rpc", optional = true }
+dnet-base = { workspace = true }
+dnet-js = { workspace = true }
+dnet-macros = { workspace = true, optional = true }
+dnet-utils = { workspace = true, optional = true }
+dnet-codecs = { workspace = true, optional = true }
+dnet-rpc = { workspace = true, optional = true }
 serde = { workspace = true }
 futures = { workspace = true }
 pin-project = { workspace = true }
@@ -93,7 +93,7 @@ web-sys = { version = "0.3", features = [
 ] }
 
 [dev-dependencies]
-dnet-tests = { path = "../dnet-tests" }
+dnet-tests = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 # examples
