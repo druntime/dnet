@@ -10,6 +10,11 @@ documentation = "https://docs.rs/dnet-js/"
 keywords = ["message", "message-passing", "communication", "js"]
 categories = ["network-programming"]
 
+[package.metadata.docs.rs]
+targets = [
+    "wasm32-unknown-unknown",
+]
+
 [features]
 default = []
 logging = ["dnet-base/logging", "dnet-tests/logging"]

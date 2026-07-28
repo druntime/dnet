@@ -10,6 +10,12 @@ documentation = "https://docs.rs/dnet-tests/"
 keywords = ["message", "message-passing", "communication", "testing"]
 categories = ["network-programming"]
 
+[package.metadata.docs.rs]
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "wasm32-unknown-unknown",
+]
+
 [features]
 default = []
 logging = ["dnet-base/logging"]
