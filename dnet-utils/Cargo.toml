@@ -46,7 +46,7 @@ futures = { workspace = true }
 num = { version = "0.4", optional = true }
 
 [dev-dependencies]
-dnet-tests = { path = "../dnet-tests" }
+dnet-tests = { workspace = true }
 dportable = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
