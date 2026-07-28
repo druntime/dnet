@@ -30,10 +30,10 @@ js-utils = "0.1"
 dportable = "0.1"
 tracing = "0.1"
 
-dnet-base = { path = "dnet-base" }
-dnet-codecs = { path = "dnet-codecs" }
-dnet-tests = { path = "dnet-tests" }
-dnet-macros = { path = "dnet-macros" }
-dnet-utils = { path = "dnet-utils" }
-dnet-js = { path = "dnet-js" }
-dnet-rpc = { path = "dnet-rpc" }
+dnet-base = { version = "0.1", path = "dnet-base" }
+dnet-codecs = { version = "0.1", path = "dnet-codecs" }
+dnet-tests = { version = "0.1", path = "dnet-tests" }
+dnet-macros = { version = "0.1", path = "dnet-macros" }
+dnet-utils = { version = "0.1", path = "dnet-utils" }
+dnet-js = { version = "0.1", path = "dnet-js" }
+dnet-rpc = { version = "0.1", path = "dnet-rpc" }
