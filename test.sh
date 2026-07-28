@@ -3,6 +3,11 @@
 set -Eeuo pipefail
 trap 'echo "Failed at line $LINENO"; exit 1' ERR
 
+if ! cmp -s README.md dnet/README.md; then
+    echo "ERROR: README.md and dnet/README.md differ"
+    exit 1
+fi
+
 echo Starting tests server...
 cargo run -p tests-server &
 
