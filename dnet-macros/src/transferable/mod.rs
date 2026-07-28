@@ -7,9 +7,7 @@ mod tests;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::{
-    parse2, parse_quote, punctuated::Punctuated, token::Comma, Data, DeriveInput, Error, Field,
-    GenericParam, Generics, Ident, Path, Token, Type, TypeGenerics, TypeParam, TypePath, TypeTuple,
-    Visibility, WhereClause, WherePredicate,
+    Data, DeriveInput, Error, Field, GenericParam, Generics, Ident, Path, Token, Type, TypeGenerics, TypeParam, TypePath, TypeTuple, Visibility, WhereClause, WherePredicate, parse_quote, parse2, punctuated::Punctuated, token::Comma,
 };
 
 use crate::{
@@ -109,7 +107,6 @@ fn into_transferable_with_paths(input: DeriveInput, paths: Paths) -> syn::Result
             ident: codec.clone(),
             colon_token: None,
             bounds: Punctuated::new(),
-            eq_token: None,
             default: None,
         }));
         let where_clause = wrapper_generics.where_clause.get_or_insert(WhereClause {
@@ -274,6 +271,7 @@ fn phantom(params: &[Ident]) -> Field {
         .iter()
         .map(|param| {
             Type::Path(TypePath {
+                attrs: Default::default(),
                 qself: None,
                 path: param.clone().into(),
             })
@@ -281,11 +279,13 @@ fn phantom(params: &[Ident]) -> Field {
         .collect();
 
     let tuple = Type::Tuple(TypeTuple {
+        attrs: Default::default(),
         paren_token: Default::default(),
         elems,
     });
 
     let ty = Type::Path(TypePath {
+        attrs: Default::default(),
         qself: None,
         path: parse_quote! {
             std::marker::PhantomData<#tuple>
@@ -295,10 +295,11 @@ fn phantom(params: &[Ident]) -> Field {
     Field {
         attrs: vec![],
         vis: Visibility::Inherited,
-        mutability: syn::FieldMutability::None,
+        modifiers: Default::default(),
         ident: Some(ident),
         colon_token: Some(Default::default()),
         ty,
+        default: None,
     }
 }
 
