@@ -37,8 +37,8 @@ web-sys = { version = "0.3", features = [
 ] }
 
 [dev-dependencies]
-dnet-tests = { path = "../dnet-tests" }
-dnet-codecs = { path = "../dnet-codecs" }
+dnet-tests = { workspace = true }
+dnet-codecs = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 wasm-bindgen-test = { workspace = true }
