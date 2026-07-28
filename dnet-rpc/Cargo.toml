@@ -26,16 +26,16 @@ futures = { workspace = true }
 atomic-counter = "1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-dnet-js = { path = "../dnet-js" }
+dnet-js = { workspace = true }
 wasm-bindgen = { workspace = true }
 web-sys = "0.3"
 
 [dev-dependencies]
-dnet-tests = { path = "../dnet-tests" }
+dnet-tests = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 tokio = { version = "1", features = ["full"] }
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
-dnet-codecs = { path = "../dnet-codecs" }
+dnet-codecs = { workspace = true }
 wasm-bindgen-test = { workspace = true }
