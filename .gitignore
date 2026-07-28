@@ -1,0 +1,9 @@
+.DS_Store
+Cargo.lock
+/target
+/tests-webworker/target
+/tests-webworker/pkg
+/tests-js/tests_webworker.js
+/dnet/examples/*/pkg
+/dnet/examples/*/www/script.js
+/dnet/examples/*/www/script_bg.wasm

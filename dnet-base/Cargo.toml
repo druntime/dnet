@@ -1,0 +1,21 @@
+[package]
+name = "dnet-base"
+version = "0.1.0"
+edition = "2021"
+authors = ["zduny <dzduniak@gmail.com>"]
+description = "Base features for dnet"
+license = "MIT"
+repository = "https://github.com/druntime/dnet"
+documentation = "https://docs.rs/dnet-base/"
+keywords = ["message", "message-passing", "communication", "base"]
+categories = ["network-programming"]
+
+[features]
+default = []
+logging = ["tracing"]
+
+[dependencies]
+serde = { workspace = true }
+futures = { workspace = true }
+pin-project = { workspace = true }
+tracing = { workspace = true, optional = true }

@@ -1,0 +1,13 @@
+[package]
+name = "tests-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["full"]}
+tower-http = { version = "0.6", features = ["trace"] }
+tracing = "0.1"
+axum = { version = "0.8", features = ["ws"] }
+async-channel = "2"
+futures = { workspace = true }
+dnet = { path = "../dnet" }

@@ -1,0 +1,41 @@
+[package]
+name = "dnet-rpc"
+version = "0.1.0"
+edition = "2021"
+authors = ["zduny <dzduniak@gmail.com>"]
+description = "Remote Procedure Call over dnet transports"
+license = "MIT"
+repository = "https://github.com/druntime/dnet"
+documentation = "https://docs.rs/dnet-rpc/"
+keywords = ["rpc", "message", "message-passing", "communication"]
+categories = ["network-programming"]
+
+
+[features]
+default = []
+logging = ["dnet-base/logging", "dnet-tests/logging"]
+
+[dependencies]
+dnet-base = { path = "../dnet-base" }
+dnet-macros = { path = "../dnet-macros" }
+dnet-utils = { path = "../dnet-utils" }
+dportable = { workspace = true }
+serde = { workspace = true }
+pin-project = { workspace = true }
+futures = { workspace = true }
+atomic-counter = "1" 
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+dnet-js = { path = "../dnet-js" }
+wasm-bindgen = { workspace = true }
+web-sys = "0.3"
+
+[dev-dependencies]
+dnet-tests = { path = "../dnet-tests" }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+dnet-codecs = { path = "../dnet-codecs" }
+wasm-bindgen-test = { workspace = true }

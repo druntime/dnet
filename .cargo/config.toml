@@ -1,0 +1,5 @@
+[build]
+# Uncomment (temporarily) when developing for wasm targets (to make rust-analyzer work).
+# Go to Cargo.toml and save - it will trigger rust-analyzer target change.
+# Comment out again before build - it will fail otherwise.
+# target = "wasm32-unknown-unknown"

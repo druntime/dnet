@@ -1,0 +1,56 @@
+[package]
+name = "dnet-utils"
+version = "0.1.0"
+edition = "2021"
+authors = ["zduny <dzduniak@gmail.com>"]
+description = "Utilities for dnet"
+license = "MIT"
+repository = "https://github.com/druntime/dnet"
+documentation = "https://docs.rs/dnet-utils/"
+keywords = ["message", "message-passing", "communication", "utils"]
+categories = ["network-programming"]
+
+[features]
+default = [
+    "channel",
+    "pipe",
+    "merged",
+    "filtering",
+    "mapping",
+    "unwrapping",
+    "splitting",
+    "numbered",
+    "latest",
+    "void",
+    "wall",
+]
+logging = ["dnet-base/logging", "dnet-tests/logging",]
+channel = []
+pipe = ["dportable"]
+merged = []
+filtering = []
+mapping = []
+unwrapping = ["mapping"]
+splitting = ["mapping"]
+numbered = ["num", "serde", "unwrapping"]
+latest = ["numbered"]
+void = []
+wall = []
+
+[dependencies]
+dnet-base = { path = "../dnet-base" }
+dportable = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+pin-project = { workspace = true }
+futures = { workspace = true }
+num = { version = "0.4", optional = true }
+
+[dev-dependencies]
+dnet-tests = { path = "../dnet-tests" }
+dportable = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test = { workspace = true }

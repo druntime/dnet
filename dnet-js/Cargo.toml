@@ -1,0 +1,44 @@
+[package]
+name = "dnet-js"
+version = "0.1.0"
+edition = "2021"
+authors = ["zduny <dzduniak@gmail.com>"]
+description = "JavaScript transport base for dnet"
+license = "MIT"
+repository = "https://github.com/druntime/dnet"
+documentation = "https://docs.rs/dnet-js/"
+keywords = ["message", "message-passing", "communication", "js"]
+categories = ["network-programming"]
+
+[features]
+default = []
+logging = ["dnet-base/logging", "dnet-tests/logging"]
+
+[dependencies]
+dnet-base = { path = "../dnet-base" }
+dnet-macros = { path = "../dnet-macros" }
+dnet-utils = { path = "../dnet-utils" }
+serde = { workspace = true }
+futures = { workspace = true }
+pin-project = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
+js-utils = { workspace = true }
+web-sys = { version = "0.3", features = [
+    "Event",
+    "EventTarget",
+    "MessageEvent",
+    "MessageChannel",
+    "MessagePort",
+    "Worker",
+    "DedicatedWorkerGlobalScope",
+] }
+
+[dev-dependencies]
+dnet-tests = { path = "../dnet-tests" }
+dnet-codecs = { path = "../dnet-codecs" }
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test = { workspace = true }

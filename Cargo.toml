@@ -1,0 +1,30 @@
+[workspace]
+resolver = "2"
+members = [
+    "dnet",
+    "dnet-base",
+    "dnet-tests",
+    "dnet-macros",
+    "dnet-utils",
+    "dnet-js",
+    "dnet-rpc",
+    "tests-server",
+    "dnet/examples/message_port",
+    "dnet/examples/webworker",
+    "dnet/examples/websocket",
+    "dnet/examples/transferable",
+    "dnet/examples/transferable_rpc",
+]
+exclude = ["tests-webworker"]
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+pin-project = "1"
+futures = "0.3"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+wasm-bindgen-test = "0.3"
+js-sys = "0.3"
+js-utils = "0.1"
+dportable = "0.1"
+tracing = "0.1"
