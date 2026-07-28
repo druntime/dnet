@@ -1,9 +1,9 @@
 [package]
 name = "dnet"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["zduny <dzduniak@gmail.com>"]
-description = "JavaScript transport base for dnet"
+description = "Message passing infrastructure."
 license = "MIT"
 repository = "https://github.com/druntime/dnet"
 documentation = "https://docs.rs/dnet/"
