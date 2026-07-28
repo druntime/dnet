@@ -7,7 +7,9 @@ mod tests;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use syn::{
-    Data, DeriveInput, Error, Field, GenericParam, Generics, Ident, Path, Token, Type, TypeGenerics, TypeParam, TypePath, TypeTuple, Visibility, WhereClause, WherePredicate, parse_quote, parse2, punctuated::Punctuated, token::Comma,
+    parse2, parse_quote, punctuated::Punctuated, token::Comma, Data, DeriveInput, Error, Field,
+    GenericParam, Generics, Ident, Path, Token, Type, TypeGenerics, TypeParam, TypePath, TypeTuple,
+    Visibility, WhereClause, WherePredicate,
 };
 
 use crate::{

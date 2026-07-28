@@ -35,7 +35,7 @@ where
 }
 
 /// Test transport by sending units (`()`) between two connected instances.
-/// 
+///
 /// When used with `BincodeCodec` it can verify sending message of length 0 (in bytes) works.
 pub async fn test_unit_message<L, R, E1, E2>(mut left: L, mut right: R)
 where
@@ -58,8 +58,8 @@ where
 }
 
 /// Test transport by collecting received messages while treating transport as a stream.
-/// 
-/// It verifies if transport closing (or dropping) on one side is 
+///
+/// It verifies if transport closing (or dropping) on one side is
 /// communicated to the other side - without it, stream would never complete.
 pub async fn test_stream<L, R, E1, E2>(left: L, right: R)
 where
@@ -71,10 +71,10 @@ where
     test_stream_with_sleep_before_drop(left, right, Duration::ZERO).await
 }
 
-/// Same as [test_stream] except we [sleep](dportable::time::sleep) for specified 
+/// Same as [test_stream] except we [sleep](dportable::time::sleep) for specified
 /// duration before dropping the sending transport.
-/// 
-/// Used by unreliable QUIC transport - there is no mechanism for the underlying 
+///
+/// Used by unreliable QUIC transport - there is no mechanism for the underlying
 /// unreliable transport to wait for messages to be flushed.
 pub async fn test_stream_with_sleep_before_drop<L, R, E1, E2>(
     mut left: L,
