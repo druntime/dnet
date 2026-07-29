@@ -1,9 +1,8 @@
 #!/bin/sh
+
 set -e
 
 # Generate GitHub Pages content for this project.
-# Currently this script builds example WebAssembly sites and copies their output
-# into docs/examples. In the future it will also generate the project book.
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 
