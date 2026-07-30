@@ -5,3 +5,6 @@ language = "en"
 
 [output.html]
 git-repository-url = "https://github.com/druntime/dnet"
+
+[output.html.playground]
+runnable = false
