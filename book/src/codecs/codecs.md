@@ -62,7 +62,7 @@ pub trait Codec: Encode + Decode {}
 
 In addition, `dnet` includes length-delimiting [framing](framing/framing.md) codec for use with the `FramedTransport`:
 
-- [`length-delimited::Codec`](framing/length_delimited.md)
+- [`length-delimited::Codec`](framing/length-delimited.md)
   - Prefixes each frame with its length in bytes.
 
 [`bincode`]: https://docs.rs/bincode/

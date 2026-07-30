@@ -1,6 +1,6 @@
 # JSON codec
 
-The [`JsonCodec`](https://docs.rs/dnet/latest/dnet/codecs/struct.JsonCodec.html) serializes and deserializes messages using [`serde_json`]. It is a text-based codec that is easy to inspect and useful for debugging, interoperability, and transport protocols that expect JSON.
+The [`JsonCodec`](https://docs.rs/dnet-codecs/0.1.0/dnet_codecs/json/struct.JsonCodec.html) serializes and deserializes messages using [`serde_json`]. It is a text-based codec that is easy to inspect and useful for debugging, interoperability, and transport protocols that expect JSON.
 
 [`serde_json`]: https://docs.rs/serde_json/
 
