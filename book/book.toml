@@ -1,4 +1,7 @@
 [book]
-title = "The dnet book"
+title = "The `dnet` Book"
 authors = ["zduny <dzduniak@gmail.com>"]
 language = "en"
+
+[output.html]
+git-repository-url = "https://github.com/druntime/dnet"
