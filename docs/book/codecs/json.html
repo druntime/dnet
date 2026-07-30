@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>The &#x60;dnet&#x60; Book</title>
-        <meta name="robots" content="noindex">
+        <title>JSON - The &#x60;dnet&#x60; Book</title>
 
 
         <!-- Custom HTML head -->
@@ -13,33 +12,33 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="favicon-8114d1fc.png">
-        <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-e96d0476.css">
-        <link rel="stylesheet" href="css/chrome-d279d366.css">
-        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-e96d0476.css">
+        <link rel="stylesheet" href="../css/chrome-d279d366.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
 
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "";
+            const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-1cf64031.js";
+            window.path_to_searchindex_js = "../searchindex-1cf64031.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-d85cace8.js"></script>
+        <script src="../toc-d85cace8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -106,7 +105,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -141,7 +140,7 @@
                     <h1 class="menu-title">The &#x60;dnet&#x60; Book</h1>
 
                     <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
                         <a href="https://github.com/druntime/dnet" title="Git repository" aria-label="Git repository">
@@ -178,213 +177,23 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
-<p>Welcome to the <strong>dnet</strong> book.</p>
-<p><code>dnet</code> is a unified messaging abstraction library for Rust that makes it easy to send and receive messages over multiple transport protocols with a consistent async interface.</p>
-<p>The core idea behind <code>dnet</code> is to delegate message encoding and decoding to <a href="https://serde.rs/">serde</a>. This allows library users to focus on the networking logic of their application instead of spending time on low-level details of the specific transport protocol used to send messages.</p>
-<h2 id="work-in-progress"><a class="header" href="#work-in-progress">Work in progress</a></h2>
-<p>This book is an early-stage work in progress and will continue to evolve.</p>
-<h2 id="what-you-will-learn"><a class="header" href="#what-you-will-learn">What you will learn</a></h2>
-<p>This book is designed to help you understand:</p>
-<ul>
-<li>What <code>dnet</code> is and when to use it</li>
-<li>How to work with common transports such as TCP, UDP, QUIC, WebSocket, MessagePort, and transport for communication with web workers</li>
-<li>How to build applications that share messaging logic between native and browser environments</li>
-<li>How to extend <code>dnet</code> with new transports or custom codecs</li>
-</ul>
-<h2 id="getting-started"><a class="header" href="#getting-started">Getting started</a></h2>
-<p>If you are new to <code>dnet</code>, it’s best to start by learning the <a href="#core-concepts">core concepts</a> of <code>dnet</code> and then explore the <a href="https://github.com/druntime/dnet/tree/main/dnet/examples">examples</a>.</p>
-<div style="break-before: page; page-break-before: always;"></div>
-<h1 id="core-concepts"><a class="header" href="#core-concepts">Core concepts</a></h1>
-<p>In <code>dnet</code>, there are three central concepts that structure how messaging works:</p>
-<h2 id="message"><a class="header" href="#message">Message</a></h2>
-<p>A “Message” is a struct defined by the user of the library. It represents the payload that will be sent or received over a <code>dnet</code> transport.</p>
-<ul>
-<li>Outgoing messages are sent by your application.</li>
-<li>Incoming messages are received from a peer.</li>
-<li>The types used for outgoing and incoming messages may differ.</li>
-</ul>
-<p><code>dnet</code> itself does not impose a fixed message schema; you define the message shapes that make sense for your application.</p>
-<h2 id="transport"><a class="header" href="#transport">Transport</a></h2>
-<p>A <code>Transport</code> is a struct defined by the <code>dnet</code> library (or by a third-party implementation that adheres to the <code>dnet</code> transport contract).</p>
-<p>A transport wraps a lower-level networking protocol (like TCP or UDP), channel, or other communication medium and provides an asynchronous interface for sending and receiving messages.</p>
-<p>See <a href="#transport-contract">Transport contract</a> for details on the <code>dnet</code> transport interface.</p>
-<h2 id="codec"><a class="header" href="#codec">Codec</a></h2>
-<p>A <code>Codec</code> is a struct that defines how messages are encoded and decoded.</p>
-<p>The codec is passed as a parameter to a <code>Transport</code> and is responsible for converting message values to and from a wire format.</p>
-<p><a href="https://docs.rs/dnet/latest/dnet/trait.Codec.html"><code>Codec</code></a> implementations work with message types that implement <a href="https://serde.rs/">Serde</a>’s <a href="https://docs.rs/serde/latest/serde/trait.Serialize.html"><code>Serialize</code></a> and <a href="https://docs.rs/serde/latest/serde/trait.Deserialize.html"><code>Deserialize</code></a> traits.</p>
-<div style="break-before: page; page-break-before: always;"></div>
-<h1 id="transport-contract"><a class="header" href="#transport-contract">Transport contract</a></h1>
-<p>A <code>dnet</code> transport implements both <a href="https://docs.rs/futures/latest/futures/sink/trait.Sink.html"><code>futures::Sink</code></a> and <a href="https://docs.rs/futures/latest/futures/stream/trait.Stream.html"><code>futures::Stream</code></a> to provide a unified asynchronous transport interface.</p>
-<p>A <code>dnet</code> transport must satisfy these requirements:</p>
-<ul>
-<li>Implement <code>Sink&lt;Outgoing, Error = crate::Error&lt;Error&gt;&gt;</code> for outgoing messages.</li>
-<li>Implement <code>Stream&lt;Item = Result&lt;Incoming, Error&gt;&gt;</code> for incoming messages.</li>
-<li>The <code>Sink</code> error type is always <code>dnet::Error&lt;Other&gt;</code>, where <code>Other</code> is the transport-specific error type.</li>
-<li>Receiving from the <code>Stream</code> yields <code>Result&lt;Incoming, Error&gt;</code>; the stream does not use <code>dnet::Error</code> for the item error.</li>
-<li>The generic <code>Error</code> type of the result yielded by the <code>Stream</code> matches the generic <code>Other</code> error of the <code>dnet::Error&lt;Other&gt;</code> used by the <code>Sink</code>.</li>
-<li>The <code>Stream</code> returns <code>None</code> to signal that the transport is closed, regardless of the underlying cause.</li>
-<li>When the <code>logging</code> feature is enabled, transports also implement <code>logging::Logging</code>.</li>
-</ul>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Transport error.
-#[derive(Debug, PartialEq, Eq)]
-pub enum Error&lt;Other&gt; {
-    /// Occurs when transport is closed.
-    Closed,
-
-    /// Other non-predefined transport-specific error.
-    Other(Other),
-}
-
-#[cfg(not(feature = "logging"))]
-/// Trait for transports implementing `dnet` interface.
-pub trait Transport&lt;Incoming, Outgoing, Error&gt;:
-    Sink&lt;Outgoing, Error = crate::Error&lt;Error&gt;&gt; + Stream&lt;Item = Result&lt;Incoming, Error&gt;&gt;
-{
-}
-
-#[cfg(not(feature = "logging"))]
-impl&lt;T, Incoming, Outgoing, Error&gt; Transport&lt;Incoming, Outgoing, Error&gt; for T where
-    T: Sink&lt;Outgoing, Error = crate::Error&lt;Error&gt;&gt; + Stream&lt;Item = Result&lt;Incoming, Error&gt;&gt;
-{
-}
-
-#[cfg(feature = "logging")]
-/// Trait for transports implementing `dnet` interface.
-pub trait Transport&lt;Incoming, Outgoing, Error&gt;:
-    Sink&lt;Outgoing, Error = crate::Error&lt;Error&gt;&gt;
-    + Stream&lt;Item = Result&lt;Incoming, Error&gt;&gt;
-    + logging::Logging
-{
-}
-
-#[cfg(feature = "logging")]
-impl&lt;T, Incoming, Outgoing, Error&gt; Transport&lt;Incoming, Outgoing, Error&gt; for T where
-    T: Sink&lt;Outgoing, Error = crate::Error&lt;Error&gt;&gt;
-        + Stream&lt;Item = Result&lt;Incoming, Error&gt;&gt;
-        + logging::Logging
-{
-}
-<span class="boring">}</span></code></pre>
-<div style="break-before: page; page-break-before: always;"></div>
-<h1 id="codecs"><a class="header" href="#codecs">Codecs</a></h1>
-<p>A <code>dnet</code> codec is responsible for converting messages between Rust values and wire format.</p>
-<p><code>dnet</code> separates encoding and decoding into two traits, then combines them into a single <a href="https://docs.rs/dnet/latest/dnet/trait.Codec.html"><code>Codec</code></a> trait.</p>
-<h2 id="encode"><a class="header" href="#encode">Encode</a></h2>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Trait for encoders.
-pub trait Encode {
-    /// Error type.
-    type Error: std::error::Error;
-
-    /// Encode message into writer.
-    fn encode&lt;W, T&gt;(&amp;mut self, writer: W, message: &amp;T) -&gt; Result&lt;(), Self::Error&gt;
-    where
-        W: Write,
-        T: Serialize;
-}
-<span class="boring">}</span></code></pre>
-<p><code>Encode</code> takes a writable sink and a serializable message. Implementations may write messages in any wire format, such as JSON, binary, or length-delimited frames.</p>
-<h2 id="decode"><a class="header" href="#decode">Decode</a></h2>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Trait for decoders.
-pub trait Decode {
-    /// Error type.
-    type Error: std::error::Error;
-
-    /// Decode message from reader.
-    fn decode&lt;R, T&gt;(&amp;mut self, data: R) -&gt; Result&lt;T, Self::Error&gt;
-    where
-        R: Read,
-        for&lt;'de&gt; T: Deserialize&lt;'de&gt;;
-}
-<span class="boring">}</span></code></pre>
-<p><code>Decode</code> reads bytes from a readable source and produces a deserialized message value. The generic error type allows decoding failures to be reported precisely.</p>
-<h2 id="codec-1"><a class="header" href="#codec-1">Codec</a></h2>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Trait for `dnet` codecs.
-pub trait Codec: Encode + Decode {}
-<span class="boring">}</span></code></pre>
-<p><code>Codec</code> is a simple alias trait combining <code>Encode</code> and <code>Decode</code>. A <code>dnet</code> transport uses a <code>Codec</code> to transform outgoing messages into bytes and incoming bytes back into message values.</p>
-<h2 id="provided-codecs"><a class="header" href="#provided-codecs">Provided codecs</a></h2>
-<p><code>dnet</code> ships with the following codecs in <code>dnet</code>’s <a href="https://docs.rs/dnet/latest/dnet/codecs/index.html"><code>codecs</code></a> module (enabled by default or with the <code>codecs</code> feature):</p>
-<ul>
-<li><a href="#bincode-codec"><code>BincodeCodec</code></a>
-<ul>
-<li>Binary codec using <a href="https://docs.rs/bincode/"><code>bincode</code></a>.</li>
-<li>Best for compact, fast wire format when both endpoints agree on the same Rust types.</li>
-</ul>
-</li>
-<li><a href="#json-codec"><code>JsonCodec</code></a>
-<ul>
-<li>Text codec using <a href="https://docs.rs/serde_json/"><code>serde_json</code></a>.</li>
-<li>Best for readable, interoperable payloads and debugging.</li>
-</ul>
-</li>
-</ul>
-<p>In addition, <code>dnet</code> includes length-delimiting <a href="#framing-codecs">framing</a> codec for use with the <code>FramedTransport</code>:</p>
-<ul>
-<li><a href="#length-delimited-framing-codec"><code>length-delimited::Codec</code></a>
-<ul>
-<li>Prefixes each frame with its length in bytes.</li>
-</ul>
-</li>
-</ul>
-<div style="break-before: page; page-break-before: always;"></div>
-<h1 id="bincode-codec"><a class="header" href="#bincode-codec">Bincode codec</a></h1>
-<p>The <a href="https://docs.rs/dnet/latest/dnet/codecs/struct.BincodeCodec.html"><code>BincodeCodec</code></a> serializes and deserializes messages using <a href="https://docs.rs/bincode/"><code>bincode</code></a>.</p>
-<h2 id="when-to-use-it"><a class="header" href="#when-to-use-it">When to use it</a></h2>
-<p>Use <code>BincodeCodec</code> when you want a fast, compact wire format and both peers agree on the same Rust data types.</p>
-<p>It is a good choice when message size and speed matter.</p>
-<div style="break-before: page; page-break-before: always;"></div>
-<h1 id="json-codec"><a class="header" href="#json-codec">JSON codec</a></h1>
+                        <h1 id="json-codec"><a class="header" href="#json-codec">JSON codec</a></h1>
 <p>The <a href="https://docs.rs/dnet/latest/dnet/codecs/struct.JsonCodec.html"><code>JsonCodec</code></a> serializes and deserializes messages using <a href="https://docs.rs/serde_json/"><code>serde_json</code></a>. It is a text-based codec that is easy to inspect and useful for debugging, interoperability, and transport protocols that expect JSON.</p>
-<h2 id="when-to-use-it-1"><a class="header" href="#when-to-use-it-1">When to use it</a></h2>
+<h2 id="when-to-use-it"><a class="header" href="#when-to-use-it">When to use it</a></h2>
 <p>Use <code>JsonCodec</code> when readability and interoperability are more important than binary compactness.</p>
 <p>It is a good fit for HTTP-friendly transports, browser interoperability, debugging, or when message structure must be inspected easily.</p>
-<div style="break-before: page; page-break-before: always;"></div>
-<h1 id="framing-codecs"><a class="header" href="#framing-codecs">Framing codecs</a></h1>
-<p>Framing codecs are used by <a href="https://docs.rs/dnet/latest/dnet/io/framed/struct.FramedTransport.html"><code>FramedTransport</code></a>.</p>
-<h2 id="what-framing-means"><a class="header" href="#what-framing-means">What framing means</a></h2>
-<p><code>FramedTransport</code> wraps a lower-level transport implementing <a href="https://docs.rs/tokio/latest/tokio/io/trait.AsyncRead.html"><code>AsyncRead</code></a> and <a href="https://docs.rs/tokio/latest/tokio/io/trait.AsyncWrite.html"><code>AsyncWrite</code></a>. That means the transport sends a continuous stream of bytes, which must first be split into frames if we want to decode them into separate messages on the receiving side.</p>
-<p>Framing codecs are responsible for this split.</p>
-<h2 id="how-framing-codecs-work"><a class="header" href="#how-framing-codecs-work">How framing codecs work</a></h2>
-<p>Framing codecs differ from normal codecs in that their error type implements <a href="https://docs.rs/dnet/latest/dnet/io/framed/trait.NotEnoughData.html"><code>NotEnoughData</code></a> — this tells <code>FramedTransport</code> that the codec needs more bytes before it can decode the incoming message.</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Codecs implementing this trait can be used in [FramedTransport].
-pub trait Framing: DecodeWithMessageLength {}
-
-impl&lt;T&gt; Framing for T
-where
-    T: Decode + DecodeWithMessageLength,
-    &lt;T as Decode&gt;::Error: NotEnoughData,
-{
-}
-<span class="boring">}</span></code></pre>
-<p><code>DecodeWithMessageLength</code> can be used to obtain the byte length of a message in addition to the decoded message itself, before decoding.
-This functionality is currently used only for logging.</p>
-<h2 id="framing-schemes"><a class="header" href="#framing-schemes">Framing schemes</a></h2>
-<p>Different frame splitting methods are possible. The <code>dnet</code> library currently includes one:</p>
-<ul>
-<li><a href="#length-delimited-framing-codec"><code>length-delimited codec</code></a> — which writes the length of each frame in bytes at the beginning of the frame.</li>
-</ul>
-<div style="break-before: page; page-break-before: always;"></div>
-<h1 id="length-delimited-framing-codec"><a class="header" href="#length-delimited-framing-codec">Length-delimited (framing) codec</a></h1>
-<p>A <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.Codec.html"><code>dnet::io::length_delimited::Codec</code></a> prefixes each frame with its length in bytes.</p>
-<p>The length prefix is used to divide the continuous byte stream into discrete frames: the codec reads the 4-byte length, then reads that many bytes as a single message frame.</p>
-<p>Note: A <code>u32</code> (4 bytes) is used to encode the message length. The 4 length-prefix bytes themselves are not counted in that length; the length value refers only to the subsequent message bytes.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../codecs/bincode.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
 
+                            <a rel="next prefetch" href="../codecs/framing/framing.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -392,7 +201,13 @@ This functionality is currently used only for logging.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../codecs/bincode.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
 
+                    <a rel="next prefetch" href="../codecs/framing/framing.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
             </nav>
 
         </div>
@@ -410,21 +225,16 @@ This functionality is currently used only for logging.</p>
         </script>
 
 
-        <script src="elasticlunr-ef4e11c1.min.js"></script>
-        <script src="mark-09e88c2c.min.js"></script>
-        <script src="searcher-09f2665d.js"></script>
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-09f2665d.js"></script>
 
-        <script src="clipboard-1626706a.min.js"></script>
-        <script src="highlight-abc7f01d.js"></script>
-        <script src="book-609e4cb8.js"></script>
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-609e4cb8.js"></script>
 
         <!-- Custom JS scripts -->
 
-        <script>
-        window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
-        });
-        </script>
 
 
     </div>
