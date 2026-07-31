@@ -2,12 +2,13 @@
 
 use std::future::Future;
 
+use dnet_utils::ConditionalSend;
 use futures::{
     channel::{mpsc::UnboundedSender, oneshot},
     select, FutureExt, Sink, SinkExt, Stream, StreamExt,
 };
 
-use dportable::{create_non_sync_send_variant_for_wasm, spawn};
+use dportable::spawn;
 use futures::pin_mut;
 
 use crate::{
@@ -76,7 +77,7 @@ pub fn handle_request<F, O, E, R, Response>(
     mut abort_receiver: oneshot::Receiver<()>,
     task_aborter: Option<AborterToken>,
 ) where
-    F: Future<Output = Result<O, E>> + SendUnlessWasm + 'static,
+    F: Future<Output = Result<O, E>> + ConditionalSend + 'static,
     O: Send + 'static,
     E: Send + 'static,
     R: Fn(O) -> Response + Send + 'static,
@@ -111,7 +112,7 @@ pub fn handle_no_ack_request<F, E>(
     mut abort_receiver: oneshot::Receiver<()>,
     task_aborter: Option<AborterToken>,
 ) where
-    F: Future<Output = Result<(), E>> + SendUnlessWasm + 'static,
+    F: Future<Output = Result<(), E>> + ConditionalSend + 'static,
     E: Send + 'static,
 {
     spawn(async move {
@@ -140,7 +141,7 @@ pub fn handle_stream_request<F, S, E, O, R, Response>(
     mut abort_receiver: oneshot::Receiver<()>,
     task_aborter: Option<AborterToken>,
 ) where
-    F: Future<Output = Result<S, E>> + SendUnlessWasm + 'static,
+    F: Future<Output = Result<S, E>> + ConditionalSend + 'static,
     S: Stream<Item = O> + Send + Unpin + 'static,
     E: Send + 'static,
     R: Fn(StreamResponse<O>) -> Response + Send + 'static,
@@ -188,12 +189,4 @@ pub fn handle_stream_request<F, S, E, O, R, Response>(
             };
         }
     });
-}
-
-create_non_sync_send_variant_for_wasm! {
-    /// Trait for types implementing [Send] unless running under
-    /// WASM targets - then it does nothing.
-    pub trait SendUnlessWasm: Send {}
-
-    impl<T> SendUnlessWasm for T where T: Send {}
 }

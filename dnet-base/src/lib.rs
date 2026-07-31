@@ -1,4 +1,5 @@
 #![warn(missing_docs)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 //! `dnet` base features.
 
@@ -226,33 +227,36 @@ where
     }
 }
 
-#[cfg(not(feature = "logging"))]
-/// Trait for transports implementing `dnet` interface.
-pub trait Transport<Incoming, Outgoing, Error>:
-    Sink<Outgoing, Error = crate::Error<Error>> + Stream<Item = Result<Incoming, Error>>
-{
+#[doc(hidden)]
+/// Logging trait variant that extents `Logging` only when `logging` feature is enabled. 
+pub mod conditional {
+    #[cfg(feature = "logging")]
+    /// Logging trait variant that extents `Logging` only when `logging` feature is enabled.
+    pub trait Logging: crate::logging::Logging {}
+
+    #[cfg(feature = "logging")]
+    impl<T> Logging for T where T: crate::logging::Logging {}
+
+    #[cfg(not(feature = "logging"))]
+    /// Logging trait variant that extents `Logging` only when `logging` feature is enabled.
+    pub trait Logging {}
+
+    #[cfg(not(feature = "logging"))]
+    impl<T> Logging for T {}
 }
 
-#[cfg(not(feature = "logging"))]
-impl<T, Incoming, Outgoing, Error> Transport<Incoming, Outgoing, Error> for T where
-    T: Sink<Outgoing, Error = crate::Error<Error>> + Stream<Item = Result<Incoming, Error>>
-{
-}
-
-#[cfg(feature = "logging")]
 /// Trait for transports implementing `dnet` interface.
 pub trait Transport<Incoming, Outgoing, Error>:
     Sink<Outgoing, Error = crate::Error<Error>>
     + Stream<Item = Result<Incoming, Error>>
-    + logging::Logging
+    + conditional::Logging
 {
 }
 
-#[cfg(feature = "logging")]
 impl<T, Incoming, Outgoing, Error> Transport<Incoming, Outgoing, Error> for T where
     T: Sink<Outgoing, Error = crate::Error<Error>>
         + Stream<Item = Result<Incoming, Error>>
-        + logging::Logging
+        + conditional::Logging
 {
 }
 

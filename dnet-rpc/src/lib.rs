@@ -4,6 +4,7 @@
 
 pub mod consumer;
 pub use consumer::{Consume, StreamRequest, ValueRequest};
+use dnet_utils::ConditionalSend;
 
 pub mod producer;
 
@@ -11,8 +12,6 @@ pub mod parts;
 
 use std::fmt::{Debug, Display};
 use std::future::Future;
-
-use dportable::create_non_sync_send_variant_for_wasm;
 
 pub use dportable::time::{sleep, Instant, Sleep, Timeout};
 pub use dportable::{spawn, JoinHandle};
@@ -71,32 +70,23 @@ pub use dnet_macros::abortable;
 /// [Produce]: self::producer::Produce
 pub use dnet_macros::Produce;
 
-create_non_sync_send_variant_for_wasm! {
-    /// Helper trait for consumer errors.
-    pub trait TransportError: Send + 'static {}
+/// Helper trait for consumer errors.
+pub trait TransportError: ConditionalSend + 'static {}
+impl<T> TransportError for T where T: ConditionalSend + 'static {}
 
-    impl<T> TransportError for T where T: Send + 'static {}
+/// Helper trait for transports used by `dnet-rpc`.
+pub trait Transport<Incoming, Outgoing, Error>:
+    dnet_base::Transport<Incoming, Outgoing, Error> + ConditionalSend + 'static
+{
+}
+impl<T, Incoming, Outgoing, Error> Transport<Incoming, Outgoing, Error> for T where
+    T: dnet_base::Transport<Incoming, Outgoing, Error> + ConditionalSend + 'static
+{
 }
 
-create_non_sync_send_variant_for_wasm! {
-    /// Helper trait for transports used by `dnet-rpc`.
-    pub trait Transport<Incoming, Outgoing, Error>:
-        dnet_base::Transport<Incoming, Outgoing, Error> + Send + 'static
-    {
-    }
-
-    impl<T, Incoming, Outgoing, Error> Transport<Incoming, Outgoing, Error> for T where
-        T: dnet_base::Transport<Incoming, Outgoing, Error> + Send + 'static
-    {
-    }
-}
-
-create_non_sync_send_variant_for_wasm! {
-    /// Helper trait for shutdown futures used by producers and consumers.
-    pub trait Shutdown: Future<Output = ShutdownType> + Send + Unpin + 'static {}
-
-    impl<T> Shutdown for T where T: Future<Output = ShutdownType> + Send + Unpin + 'static {}
-}
+/// Helper trait for shutdown futures used by producers and consumers.
+pub trait Shutdown: Future<Output = ShutdownType> + ConditionalSend + Unpin + 'static {}
+impl<T> Shutdown for T where T: Future<Output = ShutdownType> + ConditionalSend + Unpin + 'static {}
 
 /// RPC error.
 #[derive(Debug)]

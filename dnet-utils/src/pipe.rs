@@ -6,28 +6,28 @@ use std::{
     task::{Context, Poll},
 };
 
-use dportable::{create_non_sync_send_variant_for_wasm, spawn, value::Notifier};
+use dportable::{spawn, value::Notifier};
 use futures::{channel::oneshot, future::FusedFuture, select, FutureExt, Sink, SinkExt, StreamExt};
 
-create_non_sync_send_variant_for_wasm! {
-    /// Helper trait for transports that can be piped.
-    pub trait Transport<Incoming, Outgoing, Error>:
-        dnet_base::Transport<Incoming, Outgoing, Error> + Send + Unpin + 'static {}
-    impl<T, Incoming, Outgoing, Error>  Transport<Incoming, Outgoing, Error> for T
-        where T: dnet_base::Transport<Incoming, Outgoing, Error> + Send + Unpin + 'static {}
+use crate::ConditionalSend;
+
+/// Helper trait for transports that can be piped.
+pub trait Transport<Incoming, Outgoing, Error>:
+    dnet_base::Transport<Incoming, Outgoing, Error> + ConditionalSend + Unpin + 'static
+{
+}
+impl<T, Incoming, Outgoing, Error> Transport<Incoming, Outgoing, Error> for T where
+    T: dnet_base::Transport<Incoming, Outgoing, Error> + ConditionalSend + Unpin + 'static
+{
 }
 
-create_non_sync_send_variant_for_wasm! {
-    /// Helper trait for pipe-able transport message.
-    pub trait Message: Clone + Send + 'static {}
-    impl<T> Message for T where T: Clone + Send + 'static {}
-}
+/// Helper trait for pipe-able transport message.
+pub trait Message: Clone + ConditionalSend + 'static {}
+impl<T> Message for T where T: Clone + ConditionalSend + 'static {}
 
-create_non_sync_send_variant_for_wasm! {
-    /// Helper trait for pipe-able transport error.
-    pub trait Error: Send + 'static {}
-    impl<T> Error for T where T: Send + 'static {}
-}
+/// Helper trait for pipe-able transport error.
+pub trait Error: ConditionalSend + 'static {}
+impl<T> Error for T where T: ConditionalSend + 'static {}
 
 /// Strategy of handling message passing errors.
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
@@ -43,55 +43,53 @@ pub enum ErrorHandlingStrategy {
     Close,
 }
 
-create_non_sync_send_variant_for_wasm! {
-    /// Callback called when an error is encountered while trying to send a message
-    /// through the transport.
+/// Callback called when an error is encountered while trying to send a message
+/// through the transport.
+///
+/// **NOTE**: it also receives [dnet_base::Error::Closed] errors and
+/// they need to be handled properly (most likely by returning
+/// [ErrorHandlingStrategy::Close]).
+pub trait SendErrorCallback<Message, Error>: ConditionalSend + 'static {
+    /// Handle sending error.
     ///
     /// **NOTE**: it also receives [dnet_base::Error::Closed] errors and
     /// they need to be handled properly (most likely by returning
     /// [ErrorHandlingStrategy::Close]).
-    pub trait SendErrorCallback<Message, Error>: Send + 'static {
-        /// Handle sending error.
-        ///
-        /// **NOTE**: it also receives [dnet_base::Error::Closed] errors and
-        /// they need to be handled properly (most likely by returning
-        /// [ErrorHandlingStrategy::Close]).
-        fn on_send_error(
-            &mut self,
-            message: &Message,
-            error: dnet_base::Error<Error>,
-        ) -> ErrorHandlingStrategy;
-    }
+    fn on_send_error(
+        &mut self,
+        message: &Message,
+        error: dnet_base::Error<Error>,
+    ) -> ErrorHandlingStrategy;
+}
 
-    impl<T, Message, Error> SendErrorCallback<Message, Error> for T
-    where
-        T: FnMut(&Message, dnet_base::Error<Error>) -> ErrorHandlingStrategy + Send + 'static,
-    {
-        fn on_send_error(
-            &mut self,
-            message: &Message,
-            error: dnet_base::Error<Error>,
-        ) -> ErrorHandlingStrategy {
-            (self)(message, error)
-        }
+impl<T, Message, Error> SendErrorCallback<Message, Error> for T
+where
+    T: FnMut(&Message, dnet_base::Error<Error>) -> ErrorHandlingStrategy
+        + ConditionalSend
+        + 'static,
+{
+    fn on_send_error(
+        &mut self,
+        message: &Message,
+        error: dnet_base::Error<Error>,
+    ) -> ErrorHandlingStrategy {
+        (self)(message, error)
     }
 }
 
-create_non_sync_send_variant_for_wasm! {
-    /// Callback called when an error is encountered while
-    /// trying to receive a message from the transport.
-    pub trait ReceiveErrorCallback<Error>: Send + 'static {
-        /// Handle receiving error.
-        fn on_receive_error(&mut self, error: Error) -> ErrorHandlingStrategy;
-    }
+/// Callback called when an error is encountered while
+/// trying to receive a message from the transport.
+pub trait ReceiveErrorCallback<Error>: ConditionalSend + 'static {
+    /// Handle receiving error.
+    fn on_receive_error(&mut self, error: Error) -> ErrorHandlingStrategy;
+}
 
-    impl<T, Error> ReceiveErrorCallback<Error> for T
-    where
-        T: FnMut(Error) -> ErrorHandlingStrategy + Send + 'static,
-    {
-        fn on_receive_error(&mut self, error: Error) -> ErrorHandlingStrategy {
-            (self)(error)
-        }
+impl<T, Error> ReceiveErrorCallback<Error> for T
+where
+    T: FnMut(Error) -> ErrorHandlingStrategy + ConditionalSend + 'static,
+{
+    fn on_receive_error(&mut self, error: Error) -> ErrorHandlingStrategy {
+        (self)(error)
     }
 }
 

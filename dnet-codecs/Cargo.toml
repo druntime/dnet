@@ -1,6 +1,6 @@
 [package]
 name = "dnet-codecs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["zduny <dzduniak@gmail.com>"]
 description = "Codecs for dnet"
@@ -9,6 +9,9 @@ repository = "https://github.com/druntime/dnet"
 documentation = "https://docs.rs/dnet-codecs/"
 keywords = ["message", "message-passing", "communication", "codecs"]
 categories = ["network-programming"]
+
+[package.metadata.docs.rs]
+all-features = true
 
 [features]
 default = ["bincode", "json"]

@@ -1,6 +1,6 @@
 [package]
 name = "dnet-rpc"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["zduny <dzduniak@gmail.com>"]
 description = "Remote Procedure Call over dnet transports"
@@ -9,7 +9,6 @@ repository = "https://github.com/druntime/dnet"
 documentation = "https://docs.rs/dnet-rpc/"
 keywords = ["rpc", "message", "message-passing", "communication"]
 categories = ["network-programming"]
-
 
 [features]
 default = []

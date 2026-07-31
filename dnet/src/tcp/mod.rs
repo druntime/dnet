@@ -37,7 +37,7 @@ pub type Error<Codec> = length_delimited::Error<<Codec as Encode>::Error, <Codec
 /// Length-delimited transport for communication over
 /// [Tokio](https://tokio.rs/)'s TCP implementation.
 ///
-/// See also: [LengthDelimitedTransport].
+/// See also: [LengthDelimitedTransport](crate::io::length_delimited::LengthDelimitedTransport).
 #[pin_project]
 pub struct TcpTransport<T, Codec, Incoming, Outgoing>
 where

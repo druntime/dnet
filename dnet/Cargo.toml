@@ -1,6 +1,6 @@
 [package]
 name = "dnet"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 authors = ["zduny <dzduniak@gmail.com>"]
 description = "Message passing infrastructure."
@@ -11,6 +11,7 @@ keywords = ["message", "message-passing", "communication"]
 categories = ["network-programming"]
 
 [package.metadata.docs.rs]
+all-features = true
 targets = [
     "x86_64-unknown-linux-gnu",
     "wasm32-unknown-unknown",
