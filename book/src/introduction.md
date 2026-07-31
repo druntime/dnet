@@ -19,9 +19,10 @@ Read the [security](./security.md) section first, before using the `dnet` crate.
 This book is designed to help you understand:
 
 - What `dnet` is and when to use it
-- How to work with common transports such as TCP, UDP, QUIC, WebSocket, MessagePort, and transport for communication with web workers
+- How to work with common transports such as TCP, UDP, QUIC, WebSocket, MessagePort and transport for communication with web workers
 - How to build applications that share messaging logic between native and browser environments
 - How to extend `dnet` with new transports or custom codecs
+- How to implement [RPC](https://en.wikipedia.org/wiki/Remote_procedure_call) over `dnet` transports
 
 ## Getting started
 

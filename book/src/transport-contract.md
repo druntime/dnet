@@ -4,11 +4,11 @@ A `dnet` transport implements both [`futures::Sink`](https://docs.rs/futures/lat
 
 A `dnet` transport must satisfy these requirements:
 
-- Implement `Sink<Outgoing, Error = crate::Error<Error>>` for outgoing messages.
-- Implement `Stream<Item = Result<Incoming, Error>>` for incoming messages.
+- Implement `Sink<Outgoing, Error = dnet::Error<Other>>` for outgoing messages.
+- Implement `Stream<Item = Result<Incoming, Other>>` for incoming messages.
 - The `Sink` error type is always [`dnet::Error<Other>`](https://docs.rs/dnet/latest/dnet/enum.Error.html), where `Other` is the transport-specific error type.
-- Receiving from the `Stream` yields `Result<Incoming, Error>`; the stream does not use `dnet::Error` for the item error.
-- The generic `Error` type of the result yielded by the `Stream` matches the generic `Other` error of the `dnet::Error<Other>` used by the `Sink`.
+- Receiving from the `Stream` yields `Result<Incoming, Other>`; the stream does not use `dnet::Error` for the item error.
+- The generic `Other` type of the result yielded by the `Stream` matches the generic `Other` error of the `dnet::Error<Other>` used by the `Sink`.
 - The `Stream` returns `None` to signal that the transport is closed, regardless of the underlying cause.
 - When the `logging` feature is enabled, transports also implement [`logging::Logging`](https://docs.rs/dnet/latest/dnet/trait.Logging.html).
 
