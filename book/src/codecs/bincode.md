@@ -1,4 +1,4 @@
-# Bincode codec
+# `bincode` codec
 
 The [`BincodeCodec`](https://docs.rs/dnet-codecs/0.1.0/dnet_codecs/bincode/struct.BincodeCodec.html) serializes and deserializes messages using [`bincode`](https://docs.rs/bincode/).
 

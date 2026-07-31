@@ -14,6 +14,9 @@ They wrap the underlying stream in buffered I/O and can improve throughput witho
 
 ### Plain TCP
 
+> [!WARNING]
+> We are creating an insecure (unencrypted) connection here.
+
 #### Server
 
 A server accepts a plain TCP connection, receives a `String`, then sends an `i32` back.
@@ -49,7 +52,10 @@ let length: i32 = transport.receive().await?;
 
 ### TLS
 
-TLS (Transport Layer Security) encrypts and authenticates the TCP connection, protecting messages from eavesdropping and tampering. See https://en.wikipedia.org/wiki/Transport_Layer_Security for more details.
+TLS (Transport Layer Security) encrypts and authenticates the TCP connection, protecting messages from eavesdropping and tampering. See [Transport Layer Security](https://en.wikipedia.org/wiki/Transport_Layer_Security) for more details.
+
+> [!WARNING]
+> Cryptography is hard - make sure you know what you're doing.
 
 #### Server
 

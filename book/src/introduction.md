@@ -10,6 +10,10 @@ The core idea behind `dnet` is to delegate message encoding and decoding to [ser
 
 This book is an early-stage work in progress and will continue to evolve.
 
+## Security
+
+Read the [security](./security.md) section first, before using the `dnet` crate.
+
 ## What you will learn
 
 This book is designed to help you understand:

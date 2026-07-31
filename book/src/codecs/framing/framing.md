@@ -24,10 +24,14 @@ where
 }
 ```
 
-`DecodeWithMessageLength` can be used to obtain the byte length of a message in addition to the decoded message itself, before decoding.
+> [!WARNING]
+> The codec must preserve partial input (resulting in `NotEnoughData` error) in some internal buffer until a full frame can be decoded - `FramedTransport` won't send earlier bytes to the codec again.
+
+> [!NOTE]
+> [`DecodeWithMessageLength`](https://docs.rs/dnet/latest/dnet/io/framed/trait.DecodeWithMessageLength.html) can be used to obtain the byte length of a message in addition to the decoded message itself.
 This functionality is currently used only for logging.
 
 ## Framing schemes
 
 Different frame splitting methods are possible. The `dnet` library currently includes one:
-- [`length-delimited codec`](./length_delimited.md) — which writes the length of each frame in bytes at the beginning of the frame.
+- [`length-delimited codec`](./length-delimited.md) — which writes the length of each frame in bytes at the beginning of the frame.
