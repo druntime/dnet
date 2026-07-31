@@ -228,7 +228,7 @@ where
 }
 
 #[doc(hidden)]
-/// Logging trait variant that extents `Logging` only when `logging` feature is enabled. 
+/// Logging trait variant that extents `Logging` only when `logging` feature is enabled.
 pub mod conditional {
     #[cfg(feature = "logging")]
     /// Logging trait variant that extents `Logging` only when `logging` feature is enabled.
