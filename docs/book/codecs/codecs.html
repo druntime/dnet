@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-1cf64031.js";
+            window.path_to_searchindex_js = "../searchindex-d9e52d66.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-d85cace8.js"></script>
+        <script src="../toc-9fd311d8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -181,9 +181,7 @@
 <p>A <code>dnet</code> codec is responsible for converting messages between Rust values and wire format.</p>
 <p><code>dnet</code> separates encoding and decoding into two traits, then combines them into a single <a href="https://docs.rs/dnet/latest/dnet/trait.Codec.html"><code>Codec</code></a> trait.</p>
 <h2 id="encode"><a class="header" href="#encode">Encode</a></h2>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Trait for encoders.
+<pre><code class="language-rust">/// Trait for encoders.
 pub trait Encode {
     /// Error type.
     type Error: std::error::Error;
@@ -193,13 +191,10 @@ pub trait Encode {
     where
         W: Write,
         T: Serialize;
-}
-<span class="boring">}</span></code></pre>
+}</code></pre>
 <p><code>Encode</code> takes a writable sink and a serializable message. Implementations may write messages in any wire format, such as JSON, binary, or length-delimited frames.</p>
 <h2 id="decode"><a class="header" href="#decode">Decode</a></h2>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Trait for decoders.
+<pre><code class="language-rust">/// Trait for decoders.
 pub trait Decode {
     /// Error type.
     type Error: std::error::Error;
@@ -209,15 +204,11 @@ pub trait Decode {
     where
         R: Read,
         for&lt;'de&gt; T: Deserialize&lt;'de&gt;;
-}
-<span class="boring">}</span></code></pre>
+}</code></pre>
 <p><code>Decode</code> reads bytes from a readable source and produces a deserialized message value. The generic error type allows decoding failures to be reported precisely.</p>
 <h2 id="codec"><a class="header" href="#codec">Codec</a></h2>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Trait for `dnet` codecs.
-pub trait Codec: Encode + Decode {}
-<span class="boring">}</span></code></pre>
+<pre><code class="language-rust">/// Trait for `dnet` codecs.
+pub trait Codec: Encode + Decode {}</code></pre>
 <p><code>Codec</code> is a simple alias trait combining <code>Encode</code> and <code>Decode</code>. A <code>dnet</code> transport uses a <code>Codec</code> to transform outgoing messages into bytes and incoming bytes back into message values.</p>
 <h2 id="provided-codecs"><a class="header" href="#provided-codecs">Provided codecs</a></h2>
 <p><code>dnet</code> ships with the following codecs in <code>dnet</code>’s <a href="https://docs.rs/dnet/latest/dnet/codecs/index.html"><code>codecs</code></a> module (enabled by default or with the <code>codecs</code> feature):</p>
@@ -237,7 +228,7 @@ pub trait Codec: Encode + Decode {}
 </ul>
 <p>In addition, <code>dnet</code> includes length-delimiting <a href="framing/framing.html">framing</a> codec for use with the <code>FramedTransport</code>:</p>
 <ul>
-<li><a href="framing/length_delimited.html"><code>length-delimited::Codec</code></a>
+<li><a href="framing/length-delimited.html"><code>length-delimited::Codec</code></a>
 <ul>
 <li>Prefixes each frame with its length in bytes.</li>
 </ul>
@@ -248,7 +239,7 @@ pub trait Codec: Encode + Decode {}
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../transport-contract.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../how-to.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -262,7 +253,7 @@ pub trait Codec: Encode + Decode {}
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../transport-contract.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../how-to.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

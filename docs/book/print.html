@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-1cf64031.js";
+            window.path_to_searchindex_js = "searchindex-d9e52d66.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-d85cace8.js"></script>
+        <script src="toc-9fd311d8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -184,13 +184,16 @@
 <p>The core idea behind <code>dnet</code> is to delegate message encoding and decoding to <a href="https://serde.rs/">serde</a>. This allows library users to focus on the networking logic of their application instead of spending time on low-level details of the specific transport protocol used to send messages.</p>
 <h2 id="work-in-progress"><a class="header" href="#work-in-progress">Work in progress</a></h2>
 <p>This book is an early-stage work in progress and will continue to evolve.</p>
+<h2 id="security"><a class="header" href="#security">Security</a></h2>
+<p>Read the <a href="#security-1">security</a> section first, before using the <code>dnet</code> crate.</p>
 <h2 id="what-you-will-learn"><a class="header" href="#what-you-will-learn">What you will learn</a></h2>
 <p>This book is designed to help you understand:</p>
 <ul>
 <li>What <code>dnet</code> is and when to use it</li>
-<li>How to work with common transports such as TCP, UDP, QUIC, WebSocket, MessagePort, and transport for communication with web workers</li>
+<li>How to work with common transports such as TCP, UDP, QUIC, WebSocket, MessagePort and transport for communication with web workers</li>
 <li>How to build applications that share messaging logic between native and browser environments</li>
 <li>How to extend <code>dnet</code> with new transports or custom codecs</li>
+<li>How to implement <a href="https://en.wikipedia.org/wiki/Remote_procedure_call">RPC</a> over <code>dnet</code> transports</li>
 </ul>
 <h2 id="getting-started"><a class="header" href="#getting-started">Getting started</a></h2>
 <p>If you are new to <code>dnet</code>, it’s best to start by learning the <a href="#core-concepts">core concepts</a> of <code>dnet</code> and then explore the <a href="https://github.com/druntime/dnet/tree/main/dnet/examples">examples</a>.</p>
@@ -205,30 +208,51 @@
 <li>The types used for outgoing and incoming messages may differ.</li>
 </ul>
 <p><code>dnet</code> itself does not impose a fixed message schema; you define the message shapes that make sense for your application.</p>
-<h2 id="transport"><a class="header" href="#transport">Transport</a></h2>
-<p>A <code>Transport</code> is a struct defined by the <code>dnet</code> library (or by a third-party implementation that adheres to the <code>dnet</code> transport contract).</p>
-<p>A transport wraps a lower-level networking protocol (like TCP or UDP), channel, or other communication medium and provides an asynchronous interface for sending and receiving messages.</p>
-<p>See <a href="#transport-contract">Transport contract</a> for details on the <code>dnet</code> transport interface.</p>
+<pre><code class="language-rust">use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct OutgoingMessage {
+    content: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct IncomingMessage {
+    content: String,
+    timestamp: u64,
+}</code></pre>
 <h2 id="codec"><a class="header" href="#codec">Codec</a></h2>
 <p>A <code>Codec</code> is a struct that defines how messages are encoded and decoded.</p>
 <p>The codec is passed as a parameter to a <code>Transport</code> and is responsible for converting message values to and from a wire format.</p>
 <p><a href="https://docs.rs/dnet/latest/dnet/trait.Codec.html"><code>Codec</code></a> implementations work with message types that implement <a href="https://serde.rs/">Serde</a>’s <a href="https://docs.rs/serde/latest/serde/trait.Serialize.html"><code>Serialize</code></a> and <a href="https://docs.rs/serde/latest/serde/trait.Deserialize.html"><code>Deserialize</code></a> traits.</p>
+<pre><code class="language-rust">let codec = dnet::codecs::BincodeCodec::default();</code></pre>
+<h2 id="transport"><a class="header" href="#transport">Transport</a></h2>
+<p>A <code>Transport</code> is a struct defined by the <code>dnet</code> library (or by a third-party implementation that adheres to the <code>dnet</code> transport contract).</p>
+<p>A transport wraps a lower-level networking protocol (like TCP or UDP), channel, or other communication medium and provides an asynchronous interface for sending and receiving messages.</p>
+<p>See <a href="#transport-contract">Transport contract</a> for details on the <code>dnet</code> transport interface.</p>
+<pre><code class="language-rust">use futures::SinkExt;
+use tokio::net::TcpStream;
+
+use dnet::Receive as _;
+
+let stream = TcpStream::connect("127.0.0.1:1234").await?;
+let mut transport = TcpTransport::buffered(stream, codec);
+
+transport.send(OutgoingMessage { content: "Hello from dnet".to_string() }).await?;
+let incoming: IncomingMessage = transport.receive().await?;</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="transport-contract"><a class="header" href="#transport-contract">Transport contract</a></h1>
 <p>A <code>dnet</code> transport implements both <a href="https://docs.rs/futures/latest/futures/sink/trait.Sink.html"><code>futures::Sink</code></a> and <a href="https://docs.rs/futures/latest/futures/stream/trait.Stream.html"><code>futures::Stream</code></a> to provide a unified asynchronous transport interface.</p>
 <p>A <code>dnet</code> transport must satisfy these requirements:</p>
 <ul>
-<li>Implement <code>Sink&lt;Outgoing, Error = crate::Error&lt;Error&gt;&gt;</code> for outgoing messages.</li>
-<li>Implement <code>Stream&lt;Item = Result&lt;Incoming, Error&gt;&gt;</code> for incoming messages.</li>
-<li>The <code>Sink</code> error type is always <code>dnet::Error&lt;Other&gt;</code>, where <code>Other</code> is the transport-specific error type.</li>
-<li>Receiving from the <code>Stream</code> yields <code>Result&lt;Incoming, Error&gt;</code>; the stream does not use <code>dnet::Error</code> for the item error.</li>
-<li>The generic <code>Error</code> type of the result yielded by the <code>Stream</code> matches the generic <code>Other</code> error of the <code>dnet::Error&lt;Other&gt;</code> used by the <code>Sink</code>.</li>
+<li>Implement <code>Sink&lt;Outgoing, Error = dnet::Error&lt;Other&gt;&gt;</code> for outgoing messages.</li>
+<li>Implement <code>Stream&lt;Item = Result&lt;Incoming, Other&gt;&gt;</code> for incoming messages.</li>
+<li>The <code>Sink</code> error type is always <a href="https://docs.rs/dnet/latest/dnet/enum.Error.html"><code>dnet::Error&lt;Other&gt;</code></a>, where <code>Other</code> is the transport-specific error type.</li>
+<li>Receiving from the <code>Stream</code> yields <code>Result&lt;Incoming, Other&gt;</code>; the stream does not use <code>dnet::Error</code> for the item error.</li>
+<li>The generic <code>Other</code> type of the result yielded by the <code>Stream</code> matches the generic <code>Other</code> error of the <code>dnet::Error&lt;Other&gt;</code> used by the <code>Sink</code>.</li>
 <li>The <code>Stream</code> returns <code>None</code> to signal that the transport is closed, regardless of the underlying cause.</li>
-<li>When the <code>logging</code> feature is enabled, transports also implement <code>logging::Logging</code>.</li>
+<li>When the <code>logging</code> feature is enabled, transports also implement <a href="https://docs.rs/dnet/latest/dnet/trait.Logging.html"><code>logging::Logging</code></a>.</li>
 </ul>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Transport error.
+<pre><code class="language-rust">/// Transport error.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Error&lt;Other&gt; {
     /// Occurs when transport is closed.
@@ -238,44 +262,72 @@ pub enum Error&lt;Other&gt; {
     Other(Other),
 }
 
-#[cfg(not(feature = "logging"))]
-/// Trait for transports implementing `dnet` interface.
-pub trait Transport&lt;Incoming, Outgoing, Error&gt;:
-    Sink&lt;Outgoing, Error = crate::Error&lt;Error&gt;&gt; + Stream&lt;Item = Result&lt;Incoming, Error&gt;&gt;
-{
-}
-
-#[cfg(not(feature = "logging"))]
-impl&lt;T, Incoming, Outgoing, Error&gt; Transport&lt;Incoming, Outgoing, Error&gt; for T where
-    T: Sink&lt;Outgoing, Error = crate::Error&lt;Error&gt;&gt; + Stream&lt;Item = Result&lt;Incoming, Error&gt;&gt;
-{
-}
-
-#[cfg(feature = "logging")]
 /// Trait for transports implementing `dnet` interface.
 pub trait Transport&lt;Incoming, Outgoing, Error&gt;:
     Sink&lt;Outgoing, Error = crate::Error&lt;Error&gt;&gt;
     + Stream&lt;Item = Result&lt;Incoming, Error&gt;&gt;
-    + logging::Logging
+    + conditional::Logging
 {
 }
 
-#[cfg(feature = "logging")]
 impl&lt;T, Incoming, Outgoing, Error&gt; Transport&lt;Incoming, Outgoing, Error&gt; for T where
     T: Sink&lt;Outgoing, Error = crate::Error&lt;Error&gt;&gt;
         + Stream&lt;Item = Result&lt;Incoming, Error&gt;&gt;
-        + logging::Logging
+        + conditional::Logging
 {
-}
-<span class="boring">}</span></code></pre>
+}</code></pre>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p><code>conditional::Logging</code> extends <a href="https://docs.rs/dnet/latest/dnet/trait.Logging.html"><code>logging::Logging</code></a> when “logging” feature is enabled; it’s an empty trait otherwise.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="security-1"><a class="header" href="#security-1">Security</a></h1>
+<p>Security is intentionally left out of scope of the <code>dnet</code> crate.</p>
+<p><code>dnet</code> project provides a transport abstraction and networking implementation helpers, it focuses on flexible transport composition and message delivery semantics, but it does not provide encryption, authentication, or other security primitives by itself.</p>
+<h2 id="recommended-security-model"><a class="header" href="#recommended-security-model">Recommended security model</a></h2>
+<ul>
+<li>Use <code>dnet</code> over insecure transports only in trusted or local environments.</li>
+<li>For untrusted networks, rely on a secure underlying transport layer (like TCP + TLS or QUIC - assuming secure configuration).</li>
+</ul>
+<p>Always read underlying transport documentation to learn about its security semantics.</p>
+<h2 id="implementing-secure-protocols-over-dnet-transports"><a class="header" href="#implementing-secure-protocols-over-dnet-transports">Implementing secure protocols over <code>dnet</code> transports</a></h2>
+<p>Building a custom secure protocol on top of <code>dnet</code> transports, wrapping insecure lower-level protocols - like UDP or raw TCP without TLS - is technically possible, but not recommended for most users.</p>
+<p>If you choose to do this, follow these guidelines:</p>
+<ol>
+<li>Prefer well-vetted cryptographic libraries and protocols.</li>
+<li>Keep cryptographic responsibilities separate from the <code>dnet</code> transport logic.</li>
+<li>Avoid inventing custom encryption schemes unless you are a cryptography expert.</li>
+</ol>
+<p>For most applications it’s best to use an existing underlying secure transport layer instead of building security directly into <code>dnet</code> messages.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="how-to-use-dnet"><a class="header" href="#how-to-use-dnet">How to use <code>dnet</code></a></h1>
+<p>TODO</p>
+<h2 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h2>
+<p>TODO:</p>
+<ul>
+<li>mention that to use <code>dnet</code> effectively futures should be in Cargo.toml</li>
+<li>unless only working with channel transport also serde with derive feature enabled</li>
+</ul>
+<h2 id="messages"><a class="header" href="#messages">Messages</a></h2>
+<p>TODO:
+Show to how define messages (note that incoming and outgoing don’t have to match and usually don’t).</p>
+<h2 id="transport-1"><a class="header" href="#transport-1">Transport</a></h2>
+<p>TODO
+pick a codec
+how to setup a transport (note that it’s transport-dependent)</p>
+<h2 id="sending"><a class="header" href="#sending">Sending</a></h2>
+<p>TODO</p>
+<h2 id="receiving"><a class="header" href="#receiving">Receiving</a></h2>
+<p>TODO</p>
+<h2 id="logging"><a class="header" href="#logging">Logging</a></h2>
+<p>TODO</p>
+<p>Send user to see examples for more.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="codecs"><a class="header" href="#codecs">Codecs</a></h1>
 <p>A <code>dnet</code> codec is responsible for converting messages between Rust values and wire format.</p>
 <p><code>dnet</code> separates encoding and decoding into two traits, then combines them into a single <a href="https://docs.rs/dnet/latest/dnet/trait.Codec.html"><code>Codec</code></a> trait.</p>
 <h2 id="encode"><a class="header" href="#encode">Encode</a></h2>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Trait for encoders.
+<pre><code class="language-rust">/// Trait for encoders.
 pub trait Encode {
     /// Error type.
     type Error: std::error::Error;
@@ -285,13 +337,10 @@ pub trait Encode {
     where
         W: Write,
         T: Serialize;
-}
-<span class="boring">}</span></code></pre>
+}</code></pre>
 <p><code>Encode</code> takes a writable sink and a serializable message. Implementations may write messages in any wire format, such as JSON, binary, or length-delimited frames.</p>
 <h2 id="decode"><a class="header" href="#decode">Decode</a></h2>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Trait for decoders.
+<pre><code class="language-rust">/// Trait for decoders.
 pub trait Decode {
     /// Error type.
     type Error: std::error::Error;
@@ -301,15 +350,11 @@ pub trait Decode {
     where
         R: Read,
         for&lt;'de&gt; T: Deserialize&lt;'de&gt;;
-}
-<span class="boring">}</span></code></pre>
+}</code></pre>
 <p><code>Decode</code> reads bytes from a readable source and produces a deserialized message value. The generic error type allows decoding failures to be reported precisely.</p>
 <h2 id="codec-1"><a class="header" href="#codec-1">Codec</a></h2>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Trait for `dnet` codecs.
-pub trait Codec: Encode + Decode {}
-<span class="boring">}</span></code></pre>
+<pre><code class="language-rust">/// Trait for `dnet` codecs.
+pub trait Codec: Encode + Decode {}</code></pre>
 <p><code>Codec</code> is a simple alias trait combining <code>Encode</code> and <code>Decode</code>. A <code>dnet</code> transport uses a <code>Codec</code> to transform outgoing messages into bytes and incoming bytes back into message values.</p>
 <h2 id="provided-codecs"><a class="header" href="#provided-codecs">Provided codecs</a></h2>
 <p><code>dnet</code> ships with the following codecs in <code>dnet</code>’s <a href="https://docs.rs/dnet/latest/dnet/codecs/index.html"><code>codecs</code></a> module (enabled by default or with the <code>codecs</code> feature):</p>
@@ -336,14 +381,14 @@ pub trait Codec: Encode + Decode {}
 </li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="bincode-codec"><a class="header" href="#bincode-codec">Bincode codec</a></h1>
-<p>The <a href="https://docs.rs/dnet/latest/dnet/codecs/struct.BincodeCodec.html"><code>BincodeCodec</code></a> serializes and deserializes messages using <a href="https://docs.rs/bincode/"><code>bincode</code></a>.</p>
+<h1 id="bincode-codec"><a class="header" href="#bincode-codec"><code>bincode</code> codec</a></h1>
+<p>The <a href="https://docs.rs/dnet-codecs/0.1.0/dnet_codecs/bincode/struct.BincodeCodec.html"><code>BincodeCodec</code></a> serializes and deserializes messages using <a href="https://docs.rs/bincode/"><code>bincode</code></a>.</p>
 <h2 id="when-to-use-it"><a class="header" href="#when-to-use-it">When to use it</a></h2>
 <p>Use <code>BincodeCodec</code> when you want a fast, compact wire format and both peers agree on the same Rust data types.</p>
 <p>It is a good choice when message size and speed matter.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="json-codec"><a class="header" href="#json-codec">JSON codec</a></h1>
-<p>The <a href="https://docs.rs/dnet/latest/dnet/codecs/struct.JsonCodec.html"><code>JsonCodec</code></a> serializes and deserializes messages using <a href="https://docs.rs/serde_json/"><code>serde_json</code></a>. It is a text-based codec that is easy to inspect and useful for debugging, interoperability, and transport protocols that expect JSON.</p>
+<p>The <a href="https://docs.rs/dnet-codecs/0.1.0/dnet_codecs/json/struct.JsonCodec.html"><code>JsonCodec</code></a> serializes and deserializes messages using <a href="https://docs.rs/serde_json/"><code>serde_json</code></a>. It is a text-based codec that is easy to inspect and useful for debugging, interoperability, and transport protocols that expect JSON.</p>
 <h2 id="when-to-use-it-1"><a class="header" href="#when-to-use-it-1">When to use it</a></h2>
 <p>Use <code>JsonCodec</code> when readability and interoperability are more important than binary compactness.</p>
 <p>It is a good fit for HTTP-friendly transports, browser interoperability, debugging, or when message structure must be inspected easily.</p>
@@ -355,9 +400,7 @@ pub trait Codec: Encode + Decode {}
 <p>Framing codecs are responsible for this split.</p>
 <h2 id="how-framing-codecs-work"><a class="header" href="#how-framing-codecs-work">How framing codecs work</a></h2>
 <p>Framing codecs differ from normal codecs in that their error type implements <a href="https://docs.rs/dnet/latest/dnet/io/framed/trait.NotEnoughData.html"><code>NotEnoughData</code></a> — this tells <code>FramedTransport</code> that the codec needs more bytes before it can decode the incoming message.</p>
-<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Codecs implementing this trait can be used in [FramedTransport].
+<pre><code class="language-rust">/// Codecs implementing this trait can be used in [FramedTransport].
 pub trait Framing: DecodeWithMessageLength {}
 
 impl&lt;T&gt; Framing for T
@@ -365,10 +408,16 @@ where
     T: Decode + DecodeWithMessageLength,
     &lt;T as Decode&gt;::Error: NotEnoughData,
 {
-}
-<span class="boring">}</span></code></pre>
-<p><code>DecodeWithMessageLength</code> can be used to obtain the byte length of a message in addition to the decoded message itself, before decoding.
+}</code></pre>
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p>The codec must preserve partial input (resulting in <code>NotEnoughData</code> error) in some internal buffer until a full frame can be decoded - <code>FramedTransport</code> won’t send earlier bytes to the codec again.</p>
+</blockquote>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p><a href="https://docs.rs/dnet/latest/dnet/io/framed/trait.DecodeWithMessageLength.html"><code>DecodeWithMessageLength</code></a> can be used to obtain the byte length of a message in addition to the decoded message itself.
 This functionality is currently used only for logging.</p>
+</blockquote>
 <h2 id="framing-schemes"><a class="header" href="#framing-schemes">Framing schemes</a></h2>
 <p>Different frame splitting methods are possible. The <code>dnet</code> library currently includes one:</p>
 <ul>
@@ -376,9 +425,389 @@ This functionality is currently used only for logging.</p>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="length-delimited-framing-codec"><a class="header" href="#length-delimited-framing-codec">Length-delimited (framing) codec</a></h1>
-<p>A <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.Codec.html"><code>dnet::io::length_delimited::Codec</code></a> prefixes each frame with its length in bytes.</p>
-<p>The length prefix is used to divide the continuous byte stream into discrete frames: the codec reads the 4-byte length, then reads that many bytes as a single message frame.</p>
-<p>Note: A <code>u32</code> (4 bytes) is used to encode the message length. The 4 length-prefix bytes themselves are not counted in that length; the length value refers only to the subsequent message bytes.</p>
+<p>A <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/codec/struct.Codec.html"><code>dnet::io::length_delimited::Codec</code></a> prefixes each frame with its length in bytes.</p>
+<p>The length prefix is used to divide the continuous byte stream into discrete frames: the codec reads the 4-byte length in big-endian order, then reads that many bytes as a single message frame.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>A <code>u32</code> (4 bytes) is used to encode the message length in big-endian byte order. The 4 length-prefix bytes themselves are not counted in that length; the length value refers only to the subsequent message bytes.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="transports"><a class="header" href="#transports">Transports</a></h1>
+<p>TODO</p>
+<p>dnet provides…:</p>
+<ul>
+<li>list and link (in book) to transports</li>
+</ul>
+<h2 id="logging-1"><a class="header" href="#logging-1">Logging</a></h2>
+<ul>
+<li>describe how to enable (“logging” feature of <code>dnet</code>, not enabled by default), <code>enable_logging</code> method</li>
+<li>mention transport can be named (for logging purposes)</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="tcp-transport"><a class="header" href="#tcp-transport">TCP transport</a></h1>
+<p>TCP transport wrappers in <code>dnet</code> are intended for Tokio TCP streams and can be used for plain TCP or TLS-over-TCP.</p>
+<ul>
+<li><a href="https://docs.rs/dnet/latest/dnet/tcp/framed/struct.TcpFramedTransport.html"><code>TcpFramedTransport</code></a> requires a codec implementing <a href="https://docs.rs/dnet/latest/dnet/io/framed/trait.Framing.html"><code>Framing</code></a>.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/tcp/struct.TcpTransport.html"><code>TcpTransport</code></a> uses <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.Codec.html"><code>length_delimited::Codec</code></a> to frame messages.</li>
+</ul>
+<h2 id="buffered-constructors"><a class="header" href="#buffered-constructors">Buffered constructors</a></h2>
+<p>The <code>buffered</code> variants are recommended when the transport sees many small messages or when you want to reduce syscall overhead.
+They wrap the underlying stream in buffered I/O and can improve throughput without changing framing behavior.</p>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h3 id="plain-tcp"><a class="header" href="#plain-tcp">Plain TCP</a></h3>
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p>We are creating an insecure (unencrypted) connection here.</p>
+</blockquote>
+<h4 id="server"><a class="header" href="#server">Server</a></h4>
+<p>A server accepts a plain TCP connection, receives a <code>String</code>, then sends an <code>i32</code> back.</p>
+<pre><code class="language-rust">use futures::SinkExt;
+use tokio::net::TcpListener;
+use dnet::{codecs::BincodeCodec, tcp::TcpTransport, Receive};
+
+let listener = TcpListener::bind("127.0.0.1:8080").await?;
+let (tcp_stream, _peer_addr) = listener.accept().await?;
+let mut transport = TcpTransport::buffered(tcp_stream, BincodeCodec::default());
+
+let name: String = transport.receive().await?;
+transport.send(name.len() as i32).await?;</code></pre>
+<h4 id="client"><a class="header" href="#client">Client</a></h4>
+<p>A client connects over plain TCP, sends a <code>String</code>, and receives an <code>i32</code> reply.</p>
+<pre><code class="language-rust">use futures::SinkExt;
+use tokio::net::TcpStream;
+use dnet::{codecs::BincodeCodec, tcp::TcpTransport, Receive};
+
+let tcp_stream = TcpStream::connect("127.0.0.1:8080").await?;
+let mut transport = TcpTransport::buffered(tcp_stream, BincodeCodec::default());
+
+transport.send("hello".to_string()).await?;
+let length: i32 = transport.receive().await?;</code></pre>
+<h3 id="tls"><a class="header" href="#tls">TLS</a></h3>
+<p>TLS (Transport Layer Security) encrypts and authenticates the TCP connection, protecting messages from eavesdropping and tampering. See <a href="https://en.wikipedia.org/wiki/Transport_Layer_Security">Transport Layer Security</a> for more details.</p>
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p>Cryptography is hard - make sure you know what you’re doing.</p>
+</blockquote>
+<h4 id="server-1"><a class="header" href="#server-1">Server</a></h4>
+<p>A TLS server accepts the socket first, then upgrades it before wrapping it in <code>TcpTransport</code>.</p>
+<pre><code class="language-rust">use futures::SinkExt;
+use native_tls::{Identity, TlsAcceptor};
+use tokio_native_tls::TlsAcceptor as TokioTlsAcceptor;
+use tokio::net::TcpListener;
+use dnet::{codecs::BincodeCodec, tcp::TcpTransport, Receive};
+
+let listener = TcpListener::bind("0.0.0.0:8443").await?;
+let (tcp_stream, _peer_addr) = listener.accept().await?;
+
+let identity = Identity::from_pkcs12(&amp;pkcs12_bytes, "password")?;
+let tls_acceptor = TlsAcceptor::new(identity)?;
+let tokio_acceptor = TokioTlsAcceptor::from(tls_acceptor);
+let tls_stream = tokio_acceptor.accept(tcp_stream).await?;
+
+let mut transport = TcpTransport::buffered(tls_stream, BincodeCodec::default());
+let message: String = transport.receive().await?;
+transport.send(message.len() as i32).await?;</code></pre>
+<h4 id="client-1"><a class="header" href="#client-1">Client</a></h4>
+<p>A TLS client connects to the server and then negotiates TLS before wrapping the stream.</p>
+<pre><code class="language-rust">use futures::SinkExt;
+use native_tls::TlsConnector;
+use tokio_native_tls::TlsConnector as TokioTlsConnector;
+use tokio::net::TcpStream;
+use dnet::{codecs::BincodeCodec, tcp::TcpTransport, Receive};
+
+let tcp_stream = TcpStream::connect("example.com:8443").await?;
+let connector = TlsConnector::new()?;
+let tokio_connector = TokioTlsConnector::from(connector);
+let tls_stream = tokio_connector.connect("example.com", tcp_stream).await?;
+
+let mut transport = TcpTransport::buffered(tls_stream, BincodeCodec::default());
+transport.send("hello".to_string()).await?;
+let length: i32 = transport.receive().await?;</code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="udp-transport"><a class="header" href="#udp-transport">UDP transport</a></h1>
+<p>UDP transport wrapper for Tokio’s <a href="https://docs.rs/tokio/latest/tokio/net/struct.UdpSocket.html"><code>UdpSocket</code></a>.</p>
+<p>This transport inherits UDP semantics:</p>
+<ul>
+<li>unreliable: messages may be dropped,</li>
+<li>unordered: messages may arrive out of order or be duplicated,</li>
+<li>size-limited: messages are bounded by the datagram size for the underlying socket.</li>
+</ul>
+<p>The transport type is <a href="https://docs.rs/dnet/latest/dnet/udp/struct.UdpTransport.html"><code>UdpTransport&lt;U, Codec, Incoming, Outgoing&gt;</code></a> where <code>U</code> borrows a <code>UdpSocket</code>.
+It supports both connected sockets via <code>Sink&lt;Outgoing&gt;</code> and unconnected send via <a href="https://docs.rs/dnet/latest/dnet/udp/struct.UdpTransport.html#method.send_to"><code>send_to</code></a>.</p>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<h3 id="connected-udp"><a class="header" href="#connected-udp">Connected UDP</a></h3>
+<pre><code class="language-rust">use futures::SinkExt;
+use tokio::net::UdpSocket;
+use dnet::{codecs::BincodeCodec, udp::UdpTransport, Receive};
+
+let udp_socket = UdpSocket::bind("127.0.0.1:1234").await?;
+udp_socket.connect("127.0.0.1:1235").await?;
+let mut transport = UdpTransport::new(udp_socket, BincodeCodec::default());
+
+transport.send("hello".to_string()).await?;
+let reply: String = transport.receive().await?;</code></pre>
+<h3 id="unconnected-sendreceive"><a class="header" href="#unconnected-sendreceive">Unconnected send/receive</a></h3>
+<pre><code class="language-rust">use tokio::net::UdpSocket;
+use dnet::{codecs::BincodeCodec, udp::UdpTransport};
+
+let udp_socket = UdpSocket::bind("127.0.0.1:1236").await?;
+let mut transport = UdpTransport::new(udp_socket, BincodeCodec::default());
+
+transport.send_to("hello".to_string(), "127.0.0.1:1237").await?;
+let (message, peer_addr) = transport.receive_from().await?;
+println!("received {:?} from {}", message, peer_addr);</code></pre>
+<h2 id="notes"><a class="header" href="#notes">Notes</a></h2>
+<ul>
+<li>Use <a href="https://docs.rs/dnet/latest/dnet/udp/struct.UdpTransport.html#method.send_to"><code>send_to</code></a> when you need to send to different endpoints.</li>
+<li>Use the sink interface after <code>UdpSocket::connect(...)</code> for a simple connected UDP workflow.</li>
+<li>Use <a href="https://docs.rs/dnet/latest/dnet/udp/struct.UdpTransport.html#method.receive_from"><code>receive_from()</code></a> if you need the sender address for each incoming message.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="quic-transports"><a class="header" href="#quic-transports">QUIC transports</a></h1>
+<p>TODO</p>
+<p><code>dnet</code> provides wrappers around Quinn primitives. The QUIC implementation includes both reliable stream-based transports over <code>SendStream</code>/<code>RecvStream</code> and an unreliable datagram transport over <code>Connection</code>.</p>
+<h2 id="available-transports"><a class="header" href="#available-transports">Available transports</a></h2>
+<ul>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html"><code>QuicFramedTransport</code></a> — framed transport for QUIC streams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/struct.QuicTransport.html"><code>QuicTransport</code></a> — length-delimited transport for QUIC streams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/struct.QuicUnreliableTransport.html"><code>QuicUnreliableTransport</code></a> — unreliable datagram transport built on QUIC datagrams.</li>
+</ul>
+<h2 id="reliable-quic-streams"><a class="header" href="#reliable-quic-streams">Reliable QUIC streams</a></h2>
+<p><code>QuicTransport</code> is the most convenient option for typical message passing over QUIC streams. It composes [<code>QuicFramedTransport</code>] with [<code>dnet::io::length_delimited::Codec</code>].</p>
+<p><code>QuicTransport</code> supports:</p>
+<ul>
+<li>bidirectional streams via [<code>SendStream</code>] and [<code>RecvStream</code>].</li>
+<li>unidirectional send-only and receive-only streams.</li>
+<li>buffered versions for better throughput on many small messages.</li>
+<li>configurable maximum message length.</li>
+</ul>
+<h3 id="behavior"><a class="header" href="#behavior">Behavior</a></h3>
+<ul>
+<li>Reliable delivery and in-order delivery are handled by QUIC stream semantics.</li>
+<li>Messages larger than the configured limit return [<code>Error::MessageTooLong</code>].</li>
+<li>The default max message length is [<code>DEFAULT_MAX_MESSAGE_LENGTH</code>].</li>
+</ul>
+<h2 id="unreliable-quic-datagrams"><a class="header" href="#unreliable-quic-datagrams">Unreliable QUIC datagrams</a></h2>
+<p><code>QuicUnreliableTransport</code> wraps a <code>quinn::Connection</code> and uses QUIC datagrams for message transport.</p>
+<p>This transport inherits QUIC datagram semantics:</p>
+<ul>
+<li>unreliable: messages may be dropped.</li>
+<li>unordered: messages can arrive out of order.</li>
+<li>duplicate delivery is possible.</li>
+<li>messages are bounded by the underlying datagram size.</li>
+</ul>
+<p><code>QuicUnreliableTransport</code> can be configured with [<code>Configuration</code>] to:</p>
+<ul>
+<li>use <code>Connection::send_datagram_wait</code> when <code>wait_after_send</code> is enabled.</li>
+<li>optionally close the underlying connection on transport drop or close.</li>
+</ul>
+<h2 id="when-to-use-which-transport"><a class="header" href="#when-to-use-which-transport">When to use which transport</a></h2>
+<ul>
+<li>Use <code>QuicTransport</code> when you need a reliable, stream-based message channel.</li>
+<li>Use <code>QuicFramedTransport</code> when you want a custom framing codec on top of QUIC streams.</li>
+<li>Use <code>QuicUnreliableTransport</code> when you want datagram-style messaging with lower latency and no reliability guarantees.</li>
+</ul>
+<h2 id="example-1"><a class="header" href="#example-1">Example</a></h2>
+<p>See <a href="https://github.com/druntime/dnet/tree/main/dnet/examples/quic">QUIC example</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="framed-transport"><a class="header" href="#framed-transport">Framed transport</a></h1>
+<p><a href="https://docs.rs/dnet/latest/dnet/io/framed/struct.FramedTransport.html"><code>FramedTransport</code></a> Generic transport wrapper for <a href="https://docs.rs/tokio/latest/tokio/io/trait.AsyncRead.html"><code>AsyncRead</code></a> + <a href="https://docs.rs/tokio/latest/tokio/io/trait.AsyncWrite.html"><code>AsyncWrite</code></a> streams that uses a <a href="#framing-codecs">framing</a> codec to divide a continuous byte stream into discrete messages.</p>
+<p>This transport requires a codec implementing <a href="https://docs.rs/dnet/latest/dnet/io/framed/trait.Framing.html"><code>dnet::io::framed::Framing</code></a>.</p>
+<h2 id="what-it-does"><a class="header" href="#what-it-does">What it does</a></h2>
+<ul>
+<li>Wraps a lower-level transport that implements <a href="https://docs.rs/tokio/latest/tokio/io/trait.AsyncRead.html"><code>AsyncRead</code></a> and <a href="https://docs.rs/tokio/latest/tokio/io/trait.AsyncWrite.html"><code>AsyncWrite</code></a>.</li>
+<li>Encodes outgoing messages into frames using the provided codec.</li>
+<li>Reads incoming bytes into an internal buffer and decodes complete frames as they arrive.</li>
+</ul>
+<h2 id="constructors"><a class="header" href="#constructors">Constructors</a></h2>
+<ul>
+<li><a href="https://docs.rs/dnet/latest/dnet/io/framed/struct.FramedTransport.html#method.new"><code>FramedTransport::new(transport, codec)</code></a> creates a raw framed transport.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/io/framed/struct.FramedTransport.html#method.buffered"><code>FramedTransport::buffered(transport, codec)</code></a> wraps the transport in buffered I/O for better throughput with many small writes or reads.</li>
+</ul>
+<h2 id="when-to-use-it-2"><a class="header" href="#when-to-use-it-2">When to use it</a></h2>
+<ul>
+<li>Use <a href="https://docs.rs/dnet/latest/dnet/io/framed/struct.FramedTransport.html"><code>FramedTransport</code></a> when you need a generic framed protocol over any async byte stream.</li>
+<li>Use <a href="#tcp-transport"><code>TcpFramedTransport</code></a> or <a href="#quic-transports"><code>QuicFramedTransport</code></a> when you want a transport-specific wrapper that already exposes the same framed behavior.</li>
+<li>Use <a href="#length-delimited-framing-codec"><code>length_delimited::Codec</code></a> for the common case of messages prefixed with their length.</li>
+</ul>
+<h2 id="notes-1"><a class="header" href="#notes-1">Notes</a></h2>
+<ul>
+<li>A framing codec can implement custom delimiting strategies beyond length-prefix framing.</li>
+<li>The codec must preserve partial input until a full frame can be decoded.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/io/framed/struct.FramedTransport.html#method.buffered"><code>FramedTransport::buffered</code></a> is often a good default for network streams.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="length-delimited-transport"><a class="header" href="#length-delimited-transport">Length-delimited transport</a></h1>
+<p>The <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.LengthDelimitedTransport.html"><code>LengthDelimitedTransport</code></a> is a convenience wrapper around the <a href="#framed-transport"><code>FramedTransport</code></a>  transport that uses a length-delimited framing codec.</p>
+<p>It prefixes each message with a 4‑byte big-endian length (in bytes) and then writes the encoded message payload. This is the common framing scheme when sending discrete messages over a byte stream (for example TCP, IPC, or QUIC streams).</p>
+<p>Under the hood the module composes a <a href="#framed-transport"><code>FramedTransport</code></a> with <a href="codecs/framing/length_delimited.html"><code>dnet::io::length_delimited::Codec</code></a>, so you get the same framed transport semantics but with the length-prefixed codec already set up.</p>
+<h2 id="when-to-use"><a class="header" href="#when-to-use">When to use</a></h2>
+<p>Use <code>LengthDelimitedTransport</code> when you want a simple length-prefixed framing for sending serialized messages over a byte stream.</p>
+<p>If you need a different framing scheme, use <a href="#framed-transport"><code>FramedTransport</code></a> directly with a custom codec.</p>
+<h2 id="example-2"><a class="header" href="#example-2">Example</a></h2>
+<p>See <a href="https://github.com/druntime/dnet/tree/main/dnet/examples/ipc">IPC example</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="websocket"><a href="#websocket" class="header">WebSocket</a></h1>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="web-worker-transport"><a class="header" href="#web-worker-transport">Web Worker transport</a></h1>
+<p><a href="https://docs.rs/dnet/latest/dnet/webworker/struct.WebWorkerTransport.html"><code>WebWorkerTransport</code></a> is used for communication between a host page (or host worker) and a Web Worker.
+It uses the worker’s <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage"><code>postMessage</code></a> method and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker/onmessage"><code>onmessage</code></a> events (and their equivalents in worker context - <a href="https://developer.mozilla.org/en-US/docs/Web/API/DedicatedWorkerGlobalScope/postMessage"><code>DedicatedWorkerGlobalScope.postMessage</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/DedicatedWorkerGlobalScope/onmessage"><code>DedicatedWorkerGlobalScope.onmessage</code></a>) to exchange messages.</p>
+<ul>
+<li><a href="https://docs.rs/dnet/latest/dnet/webworker/struct.WebWorkerTransport.html#method.new"><code>WebWorkerTransport::new(worker, codec).await</code></a> creates a transport for the worker on the host side.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/webworker/struct.WebWorkerTransport.html#method.new_with_name"><code>WebWorkerTransport::new_with_name(worker, codec, name).await</code></a> creates a named transport for the worker on the host side.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/webworker/struct.WebWorkerTransport.html#method.new_in_worker"><code>WebWorkerTransport::new_in_worker(codec).await</code></a> creates a transport inside the worker.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/webworker/struct.WebWorkerTransport.html#method.new_with_name_in_worker"><code>WebWorkerTransport::new_with_name_in_worker(codec, name).await</code></a> creates a named transport inside the worker.</li>
+</ul>
+<p>Named transports are useful when the host or worker needs multiple channels.
+Multiple named transports can be used simultaneously alongside an unnamed transport in the same page or worker.</p>
+<p>Workers can themselves host nested workers and use <code>WebWorkerTransport::new(...)</code> from within a worker context to create transports to child workers.</p>
+<p>This transport is appropriate when you want a direct worker-host channel. If you need a dedicated <code>MessagePort</code> or transferable objects, see the MessagePort and Transferable transport sections.</p>
+<h2 id="host-example"><a class="header" href="#host-example">Host example</a></h2>
+<pre><code class="language-rust">use futures::SinkExt;
+use dnet::{codecs::BincodeCodec, webworker::WebWorkerTransport, Receive};
+use web_sys::{Worker, WorkerOptions, WorkerType};
+
+let options = WorkerOptions::new();
+options.set_type(WorkerType::Module);
+let worker = Worker::new_with_options("./worker.js", &amp;options).unwrap();
+
+let mut transport = WebWorkerTransport::new(worker, BincodeCodec::default()).await?;
+
+transport.send("hello from host".to_string()).await?;
+let reply: String = transport.receive().await?;</code></pre>
+<h2 id="worker-example"><a class="header" href="#worker-example">Worker example</a></h2>
+<pre><code class="language-rust">use futures::SinkExt;
+use dnet::{codecs::BincodeCodec, webworker::WebWorkerTransport, Receive};
+
+let mut transport = WebWorkerTransport::new_in_worker(BincodeCodec::default()).await?;
+
+let request: String = transport.receive().await?;
+transport.send(format!("hello from worker: {}", request)).await?;</code></pre>
+<h2 id="notes-2"><a class="header" href="#notes-2">Notes</a></h2>
+<ul>
+<li><code>new_in_worker</code> and <code>new_with_name_in_worker</code> must be called inside a worker context.</li>
+<li>If the code is not running in a worker, the worker-side constructor returns <code>Error::NotInWorker</code>.</li>
+<li>The transport is implemented for wasm targets using <code>web-sys</code> and the browser worker APIs.</li>
+<li>Use named transports when you want distinguishable logging or multiple worker channels.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="message-port"><a href="#message-port" class="header">Message Port</a></h1>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="transferable"><a href="#transferable" class="header">Transferable</a></h1>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="dnet-utility-transports"><a class="header" href="#dnet-utility-transports"><code>dnet</code> utility transports</a></h1>
+<p>TODO</p>
+<ul>
+<li>short description</li>
+<li>list (with links to docs.rs) with short descriptions</li>
+<li>when putting pipe in the list mention its not a transport itself - its used to connect two transports</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="remote-procedure-call"><a href="#remote-procedure-call" class="header">Remote Procedure Call</a></h1>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="api"><a href="#api" class="header">API</a></h1>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="producing"><a href="#producing" class="header">Producing</a></h1>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="consuming"><a href="#consuming" class="header">Consuming</a></h1>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="writing-a-custom-dnet-transport"><a class="header" href="#writing-a-custom-dnet-transport">Writing a custom <code>dnet</code> transport</a></h1>
+<p>A <code>dnet</code> transport must implement the transport contract described in the <a href="#transport-contract">transport contract</a>.</p>
+<h2 id="what-your-transport-must-do"><a class="header" href="#what-your-transport-must-do">What your transport must do</a></h2>
+<ul>
+<li>Implement <code>futures::Sink&lt;Outgoing, Error = dnet::Error&lt;Other&gt;&gt;</code>.</li>
+<li>Implement <code>futures::Stream&lt;Item = Result&lt;Incoming, Other&gt;&gt;</code>.</li>
+<li>Preferably implement <code>futures::stream::FusedStream</code> as well.</li>
+<li>Conditionally implement <code>dnet_base::Logging</code> behind a “logging” feature in your crate.</li>
+</ul>
+<p>The <code>Other</code> type is your transport-specific error type.</p>
+<h3 id="sink"><a class="header" href="#sink">Sink</a></h3>
+<p>The outgoing side of a transport always uses <code>dnet::Error&lt;Other&gt;</code> as the <code>Sink</code> error type.</p>
+<p>Example:</p>
+<pre><code class="language-rust">impl&lt;Codec, Incoming, Outgoing&gt; Sink&lt;Outgoing&gt; for MyTransport&lt;Codec, Incoming, Outgoing&gt; {
+    type Error = dnet::Error&lt;MyError&gt;;
+    // ... poll_ready, start_send, poll_flush, poll_close ...
+}</code></pre>
+<h3 id="stream"><a class="header" href="#stream">Stream</a></h3>
+<p>The incoming side is a <code>Stream</code> of <code>Result&lt;Incoming, Other&gt;</code>, where the same <code>Other</code> error type is used directly in the stream item.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>Do not wrap stream item errors in <code>dnet::Error</code>.</p>
+</blockquote>
+<p>Example:</p>
+<pre><code class="language-rust">impl&lt;Codec, Incoming, Outgoing&gt; Stream for MyTransport&lt;Codec, Incoming, Outgoing&gt; {
+    type Item = Result&lt;Incoming, MyError&gt;;
+    // ... poll_next ...
+}</code></pre>
+<p>The stream must return <code>None</code> to signal that the transport is closed (regardless of cause).</p>
+<h3 id="fusedstream"><a class="header" href="#fusedstream">FusedStream</a></h3>
+<p>Implementing <code>FusedStream</code> is not strictly required but recommended.</p>
+<pre><code class="language-rust">impl&lt;Codec, Incoming, Outgoing&gt; FusedStream for MyTransport&lt;Codec, Incoming, Outgoing&gt; {
+    fn is_terminated(&amp;self) -&gt; bool {
+        // todo
+    }
+}</code></pre>
+<h3 id="logging-support"><a class="header" href="#logging-support">Logging support</a></h3>
+<p>Conditionally implement <code>dnet_base::Logging</code> behind a “logging” feature in your crate.</p>
+<p>See <code>dnet</code> transport implementations for reference of what to log, how and where.</p>
+<p>Example:</p>
+<pre><code class="language-rust">pub struct MyTransport&lt;Codec, Incoming, Outgoing&gt; {
+    // ...
+
+    #[cfg(feature = "logging")]
+    logger: dnet::Logger,
+}
+
+impl&lt;Codec, Incoming, Outgoing&gt; MyTransport&lt;Codec, Incoming, Outgoing&gt; {
+    pub fn new(/* ... */) -&gt; Self {
+        WebSocketTransport {
+            // ...
+
+            #[cfg(feature = "logging")]
+            logger: dnet::Logger::new::&lt;Self&gt;(),
+        }
+    }
+}
+
+// ... todo: remember to log in your poll methods 
+
+#[cfg(feature = "logging")]
+impl&lt;Codec, Incoming, Outgoing&gt; dnet_base::Logging for MyTransport&lt;Codec, Incoming, Outgoing&gt; {
+    const KIND: &amp;'static str = "MyTransport";
+
+    fn with_logger&lt;F, R&gt;(&amp;self, f: F) -&gt; R
+    where
+        F: FnOnce(&amp;dnet_base::Logger) -&gt; R,
+    {
+        f(&amp;self.logger)
+    }
+
+    fn with_logger_mut&lt;F, R&gt;(&amp;mut self, f: F) -&gt; R
+    where
+        F: FnOnce(&amp;mut dnet_base::Logger) -&gt; R,
+    {
+        f(&amp;mut self.logger)
+    }
+}</code></pre>
+<h2 id="testing-transports"><a class="header" href="#testing-transports">Testing transports</a></h2>
+<p>Transports may be tested using the <a href="https://docs.rs/dnet-tests/latest/dnet_tests/"><code>dnet-tests</code></a> crate.
+It provides helpers such as <code>dnet_tests::test_transport</code>, <code>dnet_tests::test_unit_message</code>, and <code>dnet_tests::test_stream</code> for validating that your transport correctly sends, receives, and closes.</p>
+<p>You can use <code>dnet_tests::dtest_configure!()</code> and <code>#[dtest]</code> attribute macro to mark your tests in your test modules when your transport supports both: native and WASM targets.</p>
+<h2 id="common-mistakes"><a class="header" href="#common-mistakes">Common mistakes</a></h2>
+<ul>
+<li>Transport not closing on drop. Some underlying transports require an explicit <code>Drop</code> implementation to flush or close resources correctly.</li>
+<li>Returning <code>Result&lt;Incoming, dnet::Error&lt;TransportError&gt;&gt;</code> from the stream. The stream item should be <code>Result&lt;Incoming, TransportError&gt;</code> and the closing of the transport is notified by returning <code>None</code>.</li>
+<li>Returning <code>Poll::Pending</code> too early. If the underlying transport returned <code>Poll::Ready</code>, but you can’t construct (and return) a message yet, keep polling in a loop until you can construct a concrete return value - return <code>Poll::Pending</code> only when underlying transport returns <code>Poll::Pending</code> (or you track <a href="https://doc.rust-lang.org/std/task/struct.Waker.html">waking</a> with some other mechanism).</li>
+<li>Forgetting to implement <code>Logging</code>. When the <code>logging</code> feature is enabled, the transport should implement <code>dnet_base::Logging</code> or it may not work correctly with other <code>dnet</code> features.</li>
+<li>Implementing <code>Logging</code> trait but forgetting to actually log anything.</li>
+</ul>
 
                     </main>
 

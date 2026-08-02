@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-1cf64031.js";
+            window.path_to_searchindex_js = "searchindex-d9e52d66.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-d85cace8.js"></script>
+        <script src="toc-9fd311d8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -187,14 +187,37 @@
 <li>The types used for outgoing and incoming messages may differ.</li>
 </ul>
 <p><code>dnet</code> itself does not impose a fixed message schema; you define the message shapes that make sense for your application.</p>
-<h2 id="transport"><a class="header" href="#transport">Transport</a></h2>
-<p>A <code>Transport</code> is a struct defined by the <code>dnet</code> library (or by a third-party implementation that adheres to the <code>dnet</code> transport contract).</p>
-<p>A transport wraps a lower-level networking protocol (like TCP or UDP), channel, or other communication medium and provides an asynchronous interface for sending and receiving messages.</p>
-<p>See <a href="./transport-contract.html">Transport contract</a> for details on the <code>dnet</code> transport interface.</p>
+<pre><code class="language-rust">use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct OutgoingMessage {
+    content: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct IncomingMessage {
+    content: String,
+    timestamp: u64,
+}</code></pre>
 <h2 id="codec"><a class="header" href="#codec">Codec</a></h2>
 <p>A <code>Codec</code> is a struct that defines how messages are encoded and decoded.</p>
 <p>The codec is passed as a parameter to a <code>Transport</code> and is responsible for converting message values to and from a wire format.</p>
 <p><a href="https://docs.rs/dnet/latest/dnet/trait.Codec.html"><code>Codec</code></a> implementations work with message types that implement <a href="https://serde.rs/">Serde</a>’s <a href="https://docs.rs/serde/latest/serde/trait.Serialize.html"><code>Serialize</code></a> and <a href="https://docs.rs/serde/latest/serde/trait.Deserialize.html"><code>Deserialize</code></a> traits.</p>
+<pre><code class="language-rust">let codec = dnet::codecs::BincodeCodec::default();</code></pre>
+<h2 id="transport"><a class="header" href="#transport">Transport</a></h2>
+<p>A <code>Transport</code> is a struct defined by the <code>dnet</code> library (or by a third-party implementation that adheres to the <code>dnet</code> transport contract).</p>
+<p>A transport wraps a lower-level networking protocol (like TCP or UDP), channel, or other communication medium and provides an asynchronous interface for sending and receiving messages.</p>
+<p>See <a href="./transport-contract.html">Transport contract</a> for details on the <code>dnet</code> transport interface.</p>
+<pre><code class="language-rust">use futures::SinkExt;
+use tokio::net::TcpStream;
+
+use dnet::Receive as _;
+
+let stream = TcpStream::connect("127.0.0.1:1234").await?;
+let mut transport = TcpTransport::buffered(stream, codec);
+
+transport.send(OutgoingMessage { content: "Hello from dnet".to_string() }).await?;
+let incoming: IncomingMessage = transport.receive().await?;</code></pre>
 
                     </main>
 

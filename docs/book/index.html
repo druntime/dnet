@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-1cf64031.js";
+            window.path_to_searchindex_js = "searchindex-d9e52d66.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-d85cace8.js"></script>
+        <script src="toc-9fd311d8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -183,13 +183,16 @@
 <p>The core idea behind <code>dnet</code> is to delegate message encoding and decoding to <a href="https://serde.rs/">serde</a>. This allows library users to focus on the networking logic of their application instead of spending time on low-level details of the specific transport protocol used to send messages.</p>
 <h2 id="work-in-progress"><a class="header" href="#work-in-progress">Work in progress</a></h2>
 <p>This book is an early-stage work in progress and will continue to evolve.</p>
+<h2 id="security"><a class="header" href="#security">Security</a></h2>
+<p>Read the <a href="./security.html">security</a> section first, before using the <code>dnet</code> crate.</p>
 <h2 id="what-you-will-learn"><a class="header" href="#what-you-will-learn">What you will learn</a></h2>
 <p>This book is designed to help you understand:</p>
 <ul>
 <li>What <code>dnet</code> is and when to use it</li>
-<li>How to work with common transports such as TCP, UDP, QUIC, WebSocket, MessagePort, and transport for communication with web workers</li>
+<li>How to work with common transports such as TCP, UDP, QUIC, WebSocket, MessagePort and transport for communication with web workers</li>
 <li>How to build applications that share messaging logic between native and browser environments</li>
 <li>How to extend <code>dnet</code> with new transports or custom codecs</li>
+<li>How to implement <a href="https://en.wikipedia.org/wiki/Remote_procedure_call">RPC</a> over <code>dnet</code> transports</li>
 </ul>
 <h2 id="getting-started"><a class="header" href="#getting-started">Getting started</a></h2>
 <p>If you are new to <code>dnet</code>, it’s best to start by learning the <a href="./core-concepts.html">core concepts</a> of <code>dnet</code> and then explore the <a href="https://github.com/druntime/dnet/tree/main/dnet/examples">examples</a>.</p>
