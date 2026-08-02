@@ -9,8 +9,10 @@ use dnet_base::{Messages, Receive, Transport};
 
 use futures::{stream, SinkExt, StreamExt};
 
+/// Convenience attribute macro for marking tests that need to run for both native and WASM targets.
 pub use dportable::test::dtest;
 
+/// Configure WASM tests to run in browser.
 pub use dportable::test::dtest_configure;
 
 /// Test transport by sending strings and integers between two connected instances.
