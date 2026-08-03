@@ -397,21 +397,26 @@ fn impl_transferable_for_wrapper(
             (
                 quote! {
                     let into_transferables = self.into_transferables.pack(context)?;
-
-                    Reflect::set(&data, &JsValue::from_str("into_transferables"), &into_transferables.data).unwrap();
                     let transfer = transfer.concat(&into_transferables.transfer);
+                    let into_transferables = Some(into_transferables.data);
                 },
                 quote! {
-                    let into_transferables = Reflect::get(&object, &JsValue::from_str("into_transferables"))
-                        .map_err(|_| Error::WrongType)?;
-                    let into_transferables = #into_transferables_ident::unpack(into_transferables, context)?;
+                    let into_transferables = #into_transferables_ident::unpack(into_transferables.expect("malformed transferables"), context)?;
                 },
                 quote! {
                     into_transferables,
                 },
             )
         } else {
-            (quote! {}, quote! {}, quote! {})
+            (
+                quote! {
+                    let into_transferables = None;
+                },
+                quote! {
+                    let _ = into_transferables;
+                },
+                quote! {},
+            )
         };
 
     quote! {
@@ -431,7 +436,7 @@ fn impl_transferable_for_wrapper(
             ) -> Result<#dnet_js::WithTransferable, Self::Error> {
                 use #dnet_js::wrapper::Error;
                 use #wasm_bindgen::JsValue;
-                use #web_sys::js_sys::{Array, Object, Reflect, Uint8Array};
+                use #web_sys::js_sys::{Array, Uint8Array};
 
                 context.buffer.clear();
                 context
@@ -442,16 +447,17 @@ fn impl_transferable_for_wrapper(
 
                 let transferables = Array::of(&self.transferables);
 
-                let data = Object::new();
-                Reflect::set(&data, &JsValue::from_str("stripped"), &stripped).unwrap();
-                Reflect::set(&data, &JsValue::from_str("transferables"), &transferables).unwrap();
-
                 let mut transfer = self.transferables;
                 transfer.push(stripped.buffer().into());
-
                 let transfer = Array::of(&transfer);
 
                 #pack_into_transferables
+
+                let data = #dnet_js::transferable::utils::construct_into_transferable_data_object(
+                    &stripped,
+                    &transferables,
+                    into_transferables.as_ref(),
+                );
 
                 Ok(#dnet_js::WithTransferable {
                     data: data.into(),
@@ -465,22 +471,14 @@ fn impl_transferable_for_wrapper(
             {
                 use #dnet_js::wrapper::Error;
                 use #wasm_bindgen::{JsCast, JsValue};
-                use #web_sys::js_sys::{Array, Reflect, Uint8Array};
+                use #web_sys::js_sys::Array;
 
-                let stripped = Reflect::get(&object, &JsValue::from_str("stripped"))
-                    .map_err(|_| Error::WrongType)?
-                    .dyn_into::<Uint8Array>()
-                    .map_err(|_| Error::WrongType)?;
+                let (stripped, transferables, into_transferables) = #dnet_js::transferable::utils::destruct_into_transferable_data_object(&object)?;
 
                 let stripped = context
                     .codec
                     .decode(&stripped.to_vec()[..])
                     .map_err(Error::DeserializationError)?;
-
-                let transferables = Reflect::get(&object, &JsValue::from_str("transferables"))
-                    .map_err(|_| Error::WrongType)?
-                    .dyn_into::<Array>()
-                    .map_err(|_| Error::WrongType)?;
 
                 #unpack_into_transferables
 
