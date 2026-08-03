@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-d9e52d66.js";
+            window.path_to_searchindex_js = "../searchindex-666a10d9.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-9fd311d8.js"></script>
@@ -177,7 +177,56 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <p>TODO</p>
+                        <h1 id="messageport-transport"><a class="header" href="#messageport-transport">MessagePort transport</a></h1>
+<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html"><code>MessagePortTransport</code></a> wraps a browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessagePort"><code>MessagePort</code></a> and exposes it as a <code>dnet</code> transport.
+It is useful when you need a dedicated channel between two JavaScript contexts, such as:</p>
+<ul>
+<li>
+<p>two sides of a <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel"><code>MessageChannel</code></a>,</p>
+</li>
+<li>
+<p>a page and an iframe,</p>
+</li>
+<li>
+<p>a page and a worker when the port is passed with <code>postMessage()</code>,</p>
+</li>
+<li>
+<p>or any other API that uses <code>MessagePort</code>.</p>
+</li>
+<li>
+<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new"><code>MessagePortTransport::new(port, codec).await</code></a> creates a transport over the given <code>MessagePort</code>.</p>
+</li>
+<li>
+<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new_with_name"><code>MessagePortTransport::new_with_name(port, codec, name).await</code></a> creates a named transport.</p>
+</li>
+</ul>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>The underlying <code>MessagePort</code> is started automatically and the transport waits for the peer side to open before returning.</p>
+</blockquote>
+<p>Multiple named transports can coexist on the same <code>MessagePort</code>, and they can be used at the same time as an unnamed transport on that port.
+This makes it easy to multiplex several logical channels over the same underlying port pair.</p>
+<p>If you only need a direct worker-host channel, prefer <a href="./webworker.html"><code>WebWorkerTransport</code></a>.</p>
+<p>If you need to send transferable objects across the port, see the <a href="./transferable.html">Transferable</a> transport section.</p>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<p>Create a <code>MessageChannel</code>, then wrap each port with <code>MessagePortTransport</code>.</p>
+<pre><code class="language-rust">use futures::SinkExt;
+use web_sys::MessageChannel;
+use dnet::{codecs::BincodeCodec, message_port::MessagePortTransport, Receive};
+
+let channel = MessageChannel::new().unwrap();
+let port1 = channel.port1();
+let port2 = channel.port2();
+
+let mut left = MessagePortTransport::new(port1, BincodeCodec::default()).await?;
+left.send("hello from left".to_string()).await?;
+
+// pass the other port to another context, or just use it in the same context:
+
+let mut right = MessagePortTransport::new(port2, BincodeCodec::default()).await?;
+
+let reply: String = right.receive().await?;
+right.send(format!("hello from right, got: {}", reply)).await?;</code></pre>
 
                     </main>
 
