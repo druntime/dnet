@@ -1,6 +1,6 @@
 # Framed transport
 
-[`FramedTransport`](https://docs.rs/dnet/latest/dnet/io/framed/struct.FramedTransport.html) Generic transport wrapper for [`AsyncRead`](https://docs.rs/tokio/latest/tokio/io/trait.AsyncRead.html) + [`AsyncWrite`](https://docs.rs/tokio/latest/tokio/io/trait.AsyncWrite.html) streams that uses a [framing](../codecs/framing/framing.md) codec to divide a continuous byte stream into discrete messages.
+[`FramedTransport`](https://docs.rs/dnet/latest/dnet/io/framed/struct.FramedTransport.html) is a generic transport wrapper for [`AsyncRead`](https://docs.rs/tokio/latest/tokio/io/trait.AsyncRead.html) + [`AsyncWrite`](https://docs.rs/tokio/latest/tokio/io/trait.AsyncWrite.html) streams that uses a [framing](../codecs/framing/framing.md) codec to divide a continuous byte stream into discrete messages.
 
 This transport requires a codec implementing [`dnet::io::framed::Framing`](https://docs.rs/dnet/latest/dnet/io/framed/trait.Framing.html). 
 
