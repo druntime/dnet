@@ -1,6 +1,8 @@
 //! Transport of data with [Transferable] data over underlying transports
 //! implementing [PostMessage].
 
+pub mod utils;
+
 pub mod typed_array;
 
 use std::{
@@ -13,13 +15,18 @@ use std::{
 };
 
 use futures::{channel::oneshot, stream::FusedStream, Sink, Stream};
-use js_sys::{Array, Object, Reflect};
+use js_sys::{Array, JsString};
 use js_utils::{
     event::{EventListener, When},
     JsError,
 };
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{Event, EventTarget, MessageEvent};
+
+use crate::transferable::utils::{
+    construct_message_object, is_transport_message, message_payload, transport_name_matches,
+    Payload,
+};
 
 use super::{state::State, PostMessage};
 
@@ -131,6 +138,7 @@ where
 {
     target: Rc<T>,
     name: Option<String>,
+    name_js: Option<JsString>,
     state: Rc<RefCell<State<JsValue, self::Error<Error>>>>,
     context: RefCell<Context>,
     open_receiver: Option<oneshot::Receiver<()>>,
@@ -178,54 +186,37 @@ where
         let logger_clone = logger.clone();
 
         let state_clone = state.clone();
-        let name_clone = name.clone();
+        let name_js = name.clone().map(JsString::from);
+        let name_js_clone = name_js.clone();
         let open_sender_clone = open_sender.clone();
+
         let message_listener = target
             .when("message", move |event: MessageEvent| {
                 let data = event.data();
-                if !(Reflect::get(&data, &"type".into()).ok() == Some("transport-message".into())
-                    && Reflect::get(&data, &"name".into())
-                        .ok()
-                        .and_then(|value| value.as_string())
-                        == name_clone)
+                if !(is_transport_message(&data)
+                    && transport_name_matches(&data, name_js_clone.as_ref()))
                 {
                     return;
                 }
 
-                if let Ok(payload) = Reflect::get(&data, &"payload".into()) {
-                    if let Some(payload) = payload.as_string() {
-                        match payload.as_str() {
-                            "open" => {
-                                if let Some(notifier) = open_sender_clone.take() {
-                                    let _ = notifier.send(());
-                                } else {
-                                    unreachable!("open message received twice!")
-                                }
-                            }
-                            "close" => {
-                                state_clone.borrow_mut().close();
-                            }
-                            _ => {
-                                let error = self::Error::MalformedMessage;
-
-                                #[cfg(feature = "logging")]
-                                logger_clone.borrow().log_message_arrived_failure(&error);
-
-                                state_clone.borrow_mut().error(error);
+                if let Some(payload) = message_payload(&data) {
+                    match payload {
+                        Payload::Open => {
+                            if let Some(notifier) = open_sender_clone.take() {
+                                let _ = notifier.send(());
+                            } else {
+                                unreachable!("open message received twice!")
                             }
                         }
-                    } else if payload.is_object() {
-                        #[cfg(feature = "logging")]
-                        logger_clone.borrow().log_message_arrived_unknown(None);
+                        Payload::Close => {
+                            state_clone.borrow_mut().close();
+                        }
+                        Payload::Object(js_value) => {
+                            #[cfg(feature = "logging")]
+                            logger_clone.borrow().log_message_arrived_unknown(None);
 
-                        state_clone.borrow_mut().message(payload);
-                    } else {
-                        let error = self::Error::MalformedMessage;
-
-                        #[cfg(feature = "logging")]
-                        logger_clone.borrow().log_message_arrived_failure(&error);
-
-                        state_clone.borrow_mut().error(error);
+                            state_clone.borrow_mut().message(js_value);
+                        }
                     }
                 } else {
                     let error = self::Error::MalformedMessage;
@@ -260,7 +251,8 @@ where
 
         let mut transport = TransferableTransport {
             target,
-            name: name.clone(),
+            name,
+            name_js,
             state,
             context,
             open_receiver: Some(open_receiver),
@@ -303,35 +295,22 @@ where
             .prepare_for_transfer(&mut self.context.borrow_mut())
             .map_err(self::Error::TransferableError)?;
 
-        let message = Object::new();
-        Reflect::set(&message, &"type".into(), &"transport-message".into()).unwrap();
-        if let Some(name) = &self.name {
-            Reflect::set(&message, &"name".into(), &name.into()).unwrap();
-        }
-        Reflect::set(&message, &"payload".into(), &data).unwrap();
+        let message = construct_message_object(self.name_js.as_ref(), Payload::Object(data));
+
         self.target
             .post_message_with_transfer(&message, &transfer)
             .map_err(|error| self::Error::SendingError(error.into()))?;
+
         Ok(())
     }
 
     fn send_open(&self) {
-        let message = Object::new();
-        Reflect::set(&message, &"type".into(), &"transport-message".into()).unwrap();
-        if let Some(name) = &self.name {
-            Reflect::set(&message, &"name".into(), &name.into()).unwrap();
-        }
-        Reflect::set(&message, &"payload".into(), &"open".into()).unwrap();
+        let message = construct_message_object(self.name_js.as_ref(), Payload::Open);
         let _ = self.target.post_message(&message);
     }
 
     fn send_close(&self) {
-        let message = Object::new();
-        Reflect::set(&message, &"type".into(), &"transport-message".into()).unwrap();
-        if let Some(name) = &self.name {
-            Reflect::set(&message, &"name".into(), &name.into()).unwrap();
-        }
-        Reflect::set(&message, &"payload".into(), &"close".into()).unwrap();
+        let message = construct_message_object(self.name_js.as_ref(), Payload::Close);
         let _ = self.target.post_message(&message);
     }
 }
