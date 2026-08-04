@@ -1,6 +1,6 @@
 # Web Worker transport
 
-[`WebWorkerTransport`](https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html) is used for communication between a host page (or host worker) and a Web Worker.
+[`WebWorkerTransport`](https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html) is used for communication between a host page (or host worker) and a [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Worker).
 It uses the worker's [`postMessage`](https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage) method and [`onmessage`](https://developer.mozilla.org/en-US/docs/Web/API/Worker/onmessage) events (and their equivalents in worker context - [`DedicatedWorkerGlobalScope.postMessage`](https://developer.mozilla.org/en-US/docs/Web/API/DedicatedWorkerGlobalScope/postMessage) and [`DedicatedWorkerGlobalScope.onmessage`](https://developer.mozilla.org/en-US/docs/Web/API/DedicatedWorkerGlobalScope/onmessage)) to exchange messages.
 
 - [`WebWorkerTransport::new(worker, codec).await`](https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html#method.new) creates a transport for the worker on the host side.
