@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-666a10d9.js";
+            window.path_to_searchindex_js = "searchindex-3be1c597.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9fd311d8.js"></script>
@@ -744,11 +744,15 @@ right.send(format!("hello from right, got: {}", reply)).await?;</code></pre>
 <p>TODO</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="dnet-utility-transports"><a class="header" href="#dnet-utility-transports"><code>dnet</code> utility transports</a></h1>
-<p>TODO</p>
+<p><code>dnet</code> also provides a small set of transport utilities that wrap or adapt existing transports without introducing a new network protocol. These helpers live in the <a href="https://docs.rs/dnet/latest/dnet/utils/index.html"><code>dnet::utils</code></a> module and are useful when you want to reshape, filter, or connect transports.</p>
 <ul>
-<li>short description</li>
-<li>list (with links to docs.rs) with short descriptions</li>
-<li>when putting pipe in the list mention its not a transport itself - its used to connect two transports</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/utils/pipe/struct.Pipe.html"><code>Pipe</code></a> — connects two transports in both directions so messages can flow back and forth. It is not a transport itself; it is a helper for linking two transports together.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/utils/filter/struct.Filtering.html"><code>Filtering</code></a> — wraps a transport and drops incoming or outgoing messages based on a predicate.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/utils/map/struct.Mapping.html"><code>Mapping</code></a> — adapts a transport to a different message type by mapping outgoing messages and unmapping incoming ones.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split2.html"><code>Split2</code></a>, <a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split3.html"><code>Split3</code></a>, <a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split4.html"><code>Split4</code></a>, and <a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split5.html"><code>Split5</code></a> — split a transport carrying a tagged message enum into multiple transports with different message types.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/utils/unwrap/trait.Unwrapping.html"><code>Unwrapping</code></a> — converts incoming messages that implement <code>Unwrap</code> into their inner payloads.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/utils/latest/struct.Latest.html"><code>Latest</code></a> — wraps a numbered transport and only exposes the newest messages, discarding older ones.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/utils/void/struct.Void.html"><code>Void</code></a> — a transport that accepts outgoing messages but never produces incoming ones.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="remote-procedure-call"><a href="#remote-procedure-call" class="header">Remote Procedure Call</a></h1>
