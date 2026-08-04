@@ -24,6 +24,7 @@
   - [Web Worker](./transports/webworker.md)
   - [Message Port](./transports/message-port.md)
   - [Transferable](./transports/transferable.md)
+  - [WebRTC DataChannel](./transports/data-channel.md)
   - [Utilities](./transports/utils.md)
 
 - [Remote Procedure Call](./rpc/rpc.md)
