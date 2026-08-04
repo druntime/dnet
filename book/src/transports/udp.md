@@ -12,6 +12,10 @@ It supports both connected sockets via `Sink<Outgoing>` and unconnected send via
 
 [`UdpSocket`]: https://docs.rs/tokio/latest/tokio/net/struct.UdpSocket.html
 
+> [!WARNING]
+> This is an unreliable transport.<br>
+> Messages may be dropped, arrive out of order, or be delivered multiple times.
+
 ## Example
 
 ### Connected UDP
