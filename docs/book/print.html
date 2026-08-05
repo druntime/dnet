@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-3be1c597.js";
+            window.path_to_searchindex_js = "searchindex-f469e81a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-9fd311d8.js"></script>
+        <script src="toc-67c34547.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -182,8 +182,6 @@
 <p>Welcome to the <strong>dnet</strong> book.</p>
 <p><code>dnet</code> is a unified messaging abstraction library for Rust that makes it easy to send and receive messages over multiple transport protocols with a consistent async interface.</p>
 <p>The core idea behind <code>dnet</code> is to delegate message encoding and decoding to <a href="https://serde.rs/">serde</a>. This allows library users to focus on the networking logic of their application instead of spending time on low-level details of the specific transport protocol used to send messages.</p>
-<h2 id="work-in-progress"><a class="header" href="#work-in-progress">Work in progress</a></h2>
-<p>This book is an early-stage work in progress and will continue to evolve.</p>
 <h2 id="security"><a class="header" href="#security">Security</a></h2>
 <p>Read the <a href="#security-1">security</a> section first, before using the <code>dnet</code> crate.</p>
 <h2 id="what-you-will-learn"><a class="header" href="#what-you-will-learn">What you will learn</a></h2>
@@ -301,27 +299,93 @@ impl&lt;T, Incoming, Outgoing, Error&gt; Transport&lt;Incoming, Outgoing, Error&
 <p>For most applications it’s best to use an existing underlying secure transport layer instead of building security directly into <code>dnet</code> messages.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="how-to-use-dnet"><a class="header" href="#how-to-use-dnet">How to use <code>dnet</code></a></h1>
-<p>TODO</p>
+<p><code>dnet</code> is a easy-to-use async messaging abstraction. You define the message shapes your application needs, choose a transport and a codec, then send and receive messages over that transport.</p>
+<p>This page uses TCP examples, but the same concepts apply to other transports such as WebSocket, UDP, channel transport, etc.</p>
 <h2 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h2>
-<p>TODO:</p>
-<ul>
-<li>mention that to use <code>dnet</code> effectively futures should be in Cargo.toml</li>
-<li>unless only working with channel transport also serde with derive feature enabled</li>
-</ul>
+<p>To use <code>dnet</code>, add it to your <code>Cargo.toml</code>, along with <a href="https://crates.io/crates/serde"><code>serde</code></a> for message serialization and <a href="https://crates.io/crates/futures"><code>futures</code></a> for async stream and sink extensions:</p>
+<pre><code class="language-toml">[dependencies]
+dnet = "*"
+serde = { version = "*", features = ["derive"] }
+futures = "*"
+</code></pre>
 <h2 id="messages"><a class="header" href="#messages">Messages</a></h2>
-<p>TODO:
-Show to how define messages (note that incoming and outgoing don’t have to match and usually don’t).</p>
+<p>Define the messages your application will send and receive. Use <code>serde</code> to derive serialization and deserialization for your message types.</p>
+<pre><code class="language-rust">use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize)]
+pub struct ServerMessage {
+    some_string: String,
+    some_int: u32,
+}</code></pre>
+<p>Incoming and outgoing messages can be of different types:</p>
+<pre><code class="language-rust">#[derive(Serialize, Deserialize)]
+pub struct ClientMessage {
+    some_float: f64,
+}</code></pre>
 <h2 id="transport-1"><a class="header" href="#transport-1">Transport</a></h2>
-<p>TODO
-pick a codec
-how to setup a transport (note that it’s transport-dependent)</p>
+<p>A transport wraps an underlying I/O channel and provides <code>dnet</code> message send/receive operations.</p>
+<p>Here we are using TCP, but the same concepts apply to other transports such as WebSocket, UDP, channel transport, etc.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>Different transports require different setup of the underlying protocol/channel/etc. before they can wrap them. See the transport documentation for details.</p>
+</blockquote>
+<pre><code class="language-rust">use dnet::{codecs::BincodeCodec, tcp::TcpTransport};
+use tokio::net::TcpStream;
+
+let stream = TcpStream::connect("127.0.0.1:8080").await?;
+let mut transport = TcpTransport::&lt;_, _, ClientMessage, ServerMessage&gt;::buffered(
+    stream,
+    BincodeCodec::default(),
+);</code></pre>
 <h2 id="sending"><a class="header" href="#sending">Sending</a></h2>
-<p>TODO</p>
+<p>Send values with <code>future</code>’s <code>Sink</code> <a href="https://docs.rs/futures/latest/futures/sink/trait.SinkExt.html#method.send"><code>send(...)</code></a>:</p>
+<pre><code class="language-rust">use futures::SinkExt;
+
+transport.send(ServerMessage { 
+    some_string: "Hello, world!".into(), 
+    some_int: 42 
+}).await?;</code></pre>
 <h2 id="receiving"><a class="header" href="#receiving">Receiving</a></h2>
-<p>TODO</p>
+<p>Receive values with <code>future</code>’s <code>Stream</code> <a href="https://docs.rs/futures/latest/futures/stream/trait.StreamExt.html#method.next"><code>next()</code></a>:</p>
+<pre><code class="language-rust">use futures::StreamExt;
+
+match transport.next().await {
+    Some(Ok(message)) =&gt; {
+        println!("received message from the server: {}", message.some_string);
+        transport.send(ClientMessage { some_float: 3.14 }).await?;
+    }
+    Some(Err(error)) =&gt; {
+        // handle receive error
+    }
+    None =&gt; {
+        // transport closed
+    }
+}</code></pre>
+<p>or by using the <a href="https://docs.rs/dnet/latest/dnet/trait.Receive.html#tymethod.receive"><code>receive()</code></a> method:</p>
+<pre><code class="language-rust">use dnet::Receive as _;
+
+let incoming: ClientMessage = transport.receive().await?;
+println!("received message from the client: {}", message.some_float);</code></pre>
 <h2 id="logging"><a class="header" href="#logging">Logging</a></h2>
-<p>TODO</p>
-<p>Send user to see examples for more.</p>
+<p><code>dnet</code> transports support logging via the <a href="https://docs.rs/dnet/latest/dnet/trait.Logging.html"><code>Logging</code></a> trait (enabled with the “logging” feature). To see transport logs, initialize a <a href="https://docs.rs/tracing/latest/tracing/"><code>tracing</code></a> subscriber from <a href="https://docs.rs/tracing-subscriber/latest/tracing_subscriber/"><code>tracing-subscriber</code></a>, then enable logging on the transport.</p>
+<pre><code class="language-toml">[dependencies]
+dnet = { version = "*", features = ["logging"] }
+tracing-subscriber = "*"
+</code></pre>
+<pre><code class="language-rust">use dnet::{codecs::BincodeCodec, tcp::TcpTransport};
+use tracing_subscriber;
+
+tracing_subscriber::fmt().init();
+
+let stream = TcpStream::connect("127.0.0.1:8080").await?;
+let mut transport = TcpTransport::&lt;_, _, ServerMessage, ClientMessage&gt;::buffered(
+    stream,
+    BincodeCodec::default(),
+);
+// optionally: transport.set_logging_name("tcp-client");
+transport.enable_logging();</code></pre>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<p>See the repository <a href="https://github.com/druntime/dnet/tree/main/dnet/examples">examples</a> for complete working code.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="codecs"><a class="header" href="#codecs">Codecs</a></h1>
 <p>A <code>dnet</code> codec is responsible for converting messages between Rust values and wire format.</p>
@@ -433,16 +497,37 @@ This functionality is currently used only for logging.</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="transports"><a class="header" href="#transports">Transports</a></h1>
-<p>TODO</p>
-<p>dnet provides…:</p>
+<p><code>dnet</code> provides a variety of transport implementations for different networking scenarios.</p>
+<p>Transports are implemented for both native and WebAssembly targets (when appropriate).</p>
+<h2 id="provided-transports"><a class="header" href="#provided-transports">Provided transports</a></h2>
 <ul>
-<li>list and link (in book) to transports</li>
+<li><a href="#tcp-transport">TCP</a> - transport over <a href="https://docs.rs/tokio/latest/tokio/">tokio</a>’s TCP sockets (native only)</li>
+<li><a href="#udp-transport">UDP</a> - transport over <a href="https://docs.rs/tokio/latest/tokio/">tokio</a>’s UDP sockets (native only)</li>
+<li><a href="#quic-transports">QUIC</a> - transports over <a href="https://docs.rs/quinn/latest/quinn/">quinn</a>’s QUIC protocol (native only)</li>
+<li><a href="#websocket-transport">WebSocket</a> - transport over WebSockets (native and WebAssembly, both server - <a href="https://docs.rs/axum/latest/axum/">axum</a>’s <a href="https://docs.rs/axum/latest/axum/extract/ws/struct.WebSocket.html"><code>WebSocket</code></a> and client - <a href="https://docs.rs/tungstenite/latest/tungstenite/">tungstenite</a>’s <a href="https://docs.rs/tungstenite/latest/tungstenite/protocol/struct.WebSocket.html"><code>WebSocket</code></a> on native, and <a href="https://docs.rs/web-sys/latest/web_sys/">web-sys</a>’s <a href="https://docs.rs/web-sys/latest/web_sys/struct.WebSocket.html"><code>WebSocket</code></a> on WebAssembly)</li>
+<li><a href="#messageport-transport">MessagePort</a> - transport over <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessagePort">MessagePort</a> (WebAssembly only)</li>
+<li><a href="#web-worker-transport">Web Worker</a> - transport to and from a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker">Web Worker</a> (WebAssembly only)</li>
+<li><a href="#transferable-transport">Transferable</a> - transport for <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects">transferable objects</a> (WebAssembly only)</li>
+<li><a href="#framed-transport">Framed transport</a> - framed message transport</li>
+<li><a href="#length-delimited-transport">Length-delimited transport</a> - length-delimited message transport</li>
+<li><a href="#dnet-utilities">Utilities</a></li>
+</ul>
+<h2 id="available-for-licensing"><a class="header" href="#available-for-licensing">Available for licensing</a></h2>
+<ul>
+<li><a href="#webrtc-data-channel">DataChannel</a> - transport over <a href="https://webrtc.org/">WebRTC</a> <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Using_data_channels">data channels</a> (native and WebAssembly)</li>
 </ul>
 <h2 id="logging-1"><a class="header" href="#logging-1">Logging</a></h2>
-<ul>
-<li>describe how to enable (“logging” feature of <code>dnet</code>, not enabled by default), <code>enable_logging</code> method</li>
-<li>mention transport can be named (for logging purposes)</li>
-</ul>
+<p>The “logging” feature is not enabled by default. If you want transport-level diagnostics, enable it in your <code>Cargo.toml</code>:</p>
+<pre><code class="language-toml">[dependencies]
+dnet = { version = "0.1.4", features = ["logging"] }
+</code></pre>
+<p>When the “logging” feature is enabled, supported transports implement the <a href="https://docs.rs/dnet/latest/dnet/trait.Logging.html"><code>Logging</code></a> trait. You can then enable logging at runtime and assign a logical transport name for easier filtering and debugging:</p>
+<pre><code class="language-rust">use dnet::Logging;
+
+let mut transport = /* create transport */;
+transport.set_logging_name("peer-1");
+transport.enable_logging();</code></pre>
+<p>Named transports are especially useful when you use multiple transports of the same kind in your application.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="tcp-transport"><a class="header" href="#tcp-transport">TCP transport</a></h1>
 <p>TCP transport wrappers in <code>dnet</code> are intended for Tokio TCP streams and can be used for plain TCP or TLS-over-TCP.</p>
@@ -453,7 +538,7 @@ This functionality is currently used only for logging.</p>
 <h2 id="buffered-constructors"><a class="header" href="#buffered-constructors">Buffered constructors</a></h2>
 <p>The <code>buffered</code> variants are recommended when the transport sees many small messages or when you want to reduce syscall overhead.
 They wrap the underlying stream in buffered I/O and can improve throughput without changing framing behavior.</p>
-<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
 <h3 id="plain-tcp"><a class="header" href="#plain-tcp">Plain TCP</a></h3>
 <blockquote class="blockquote-tag blockquote-tag-warning">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
@@ -534,6 +619,11 @@ let length: i32 = transport.receive().await?;</code></pre>
 </ul>
 <p>The transport type is <a href="https://docs.rs/dnet/latest/dnet/udp/struct.UdpTransport.html"><code>UdpTransport&lt;U, Codec, Incoming, Outgoing&gt;</code></a> where <code>U</code> borrows a <code>UdpSocket</code>.
 It supports both connected sockets via <code>Sink&lt;Outgoing&gt;</code> and unconnected send via <a href="https://docs.rs/dnet/latest/dnet/udp/struct.UdpTransport.html#method.send_to"><code>send_to</code></a>.</p>
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p>This is an unreliable transport.<br>
+Messages may be dropped, arrive out of order, or be delivered multiple times.</p>
+</blockquote>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
 <h3 id="connected-udp"><a class="header" href="#connected-udp">Connected UDP</a></h3>
 <pre><code class="language-rust">use futures::SinkExt;
@@ -564,29 +654,27 @@ println!("received {:?} from {}", message, peer_addr);</code></pre>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="quic-transports"><a class="header" href="#quic-transports">QUIC transports</a></h1>
-<p>TODO</p>
-<p><code>dnet</code> provides wrappers around Quinn primitives. The QUIC implementation includes both reliable stream-based transports over <code>SendStream</code>/<code>RecvStream</code> and an unreliable datagram transport over <code>Connection</code>.</p>
+<p><code>dnet</code> provides wrappers around Quinn primitives. The QUIC implementation includes both reliable stream-based transports over <a href="https://docs.rs/quinn/latest/quinn/struct.SendStream.html"><code>SendStream</code></a>/<a href="https://docs.rs/quinn/latest/quinn/struct.RecvStream.html"><code>RecvStream</code></a> and an unreliable datagram transport over <a href="https://docs.rs/quinn/latest/quinn/struct.Connection.html"><code>Connection</code></a>.</p>
 <h2 id="available-transports"><a class="header" href="#available-transports">Available transports</a></h2>
 <ul>
-<li><a href="https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html"><code>QuicFramedTransport</code></a> — framed transport for QUIC streams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html"><code>QuicFramedTransport</code></a> — <a href="#framed-transport">framed</a> transport for QUIC streams.</li>
 <li><a href="https://docs.rs/dnet/latest/dnet/quic/struct.QuicTransport.html"><code>QuicTransport</code></a> — length-delimited transport for QUIC streams.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/quic/struct.QuicUnreliableTransport.html"><code>QuicUnreliableTransport</code></a> — unreliable datagram transport built on QUIC datagrams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/unreliable/struct.QuicUnreliableTransport.html"><code>QuicUnreliableTransport</code></a> — unreliable datagram transport built on QUIC datagrams.</li>
 </ul>
 <h2 id="reliable-quic-streams"><a class="header" href="#reliable-quic-streams">Reliable QUIC streams</a></h2>
-<p><code>QuicTransport</code> is the most convenient option for typical message passing over QUIC streams. It composes [<code>QuicFramedTransport</code>] with [<code>dnet::io::length_delimited::Codec</code>].</p>
+<p><code>QuicTransport</code> is the most convenient option for typical message passing over QUIC streams. It composes <code>QuicFramedTransport</code> with <a href="#length-delimited-framing-codec"><code>dnet::io::length_delimited::Codec</code></a>.</p>
 <p><code>QuicTransport</code> supports:</p>
 <ul>
-<li>bidirectional streams via [<code>SendStream</code>] and [<code>RecvStream</code>].</li>
-<li>unidirectional send-only and receive-only streams.</li>
+<li>bidirectional streams (wrapping <code>SendStream</code> and <code>RecvStream</code>).</li>
+<li>unidirectional send-only and receive-only streams (wrapping <code>SendStream</code> or <code>RecvStream</code>).</li>
 <li>buffered versions for better throughput on many small messages.</li>
 <li>configurable maximum message length.</li>
 </ul>
-<h3 id="behavior"><a class="header" href="#behavior">Behavior</a></h3>
-<ul>
-<li>Reliable delivery and in-order delivery are handled by QUIC stream semantics.</li>
-<li>Messages larger than the configured limit return [<code>Error::MessageTooLong</code>].</li>
-<li>The default max message length is [<code>DEFAULT_MAX_MESSAGE_LENGTH</code>].</li>
-</ul>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>This is a reliable transport.<br>
+Reliable delivery and in-order delivery are handled by QUIC stream semantics.</p>
+</blockquote>
 <h2 id="unreliable-quic-datagrams"><a class="header" href="#unreliable-quic-datagrams">Unreliable QUIC datagrams</a></h2>
 <p><code>QuicUnreliableTransport</code> wraps a <code>quinn::Connection</code> and uses QUIC datagrams for message transport.</p>
 <p>This transport inherits QUIC datagram semantics:</p>
@@ -596,11 +684,16 @@ println!("received {:?} from {}", message, peer_addr);</code></pre>
 <li>duplicate delivery is possible.</li>
 <li>messages are bounded by the underlying datagram size.</li>
 </ul>
-<p><code>QuicUnreliableTransport</code> can be configured with [<code>Configuration</code>] to:</p>
+<p><code>QuicUnreliableTransport</code> can be configured with <a href="https://docs.rs/dnet/latest/dnet/quic/unreliable/struct.Configuration.html"><code>Configuration</code></a> to:</p>
 <ul>
-<li>use <code>Connection::send_datagram_wait</code> when <code>wait_after_send</code> is enabled.</li>
+<li>use <a href="https://docs.rs/quinn/latest/quinn/struct.Connection.html#method.send_datagram_wait"><code>Connection::send_datagram_wait</code></a> when <code>wait_after_send</code> is enabled.</li>
 <li>optionally close the underlying connection on transport drop or close.</li>
 </ul>
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p>This is an unreliable transport.<br>
+Messages may be dropped, arrive out of order, or be delivered multiple times.</p>
+</blockquote>
 <h2 id="when-to-use-which-transport"><a class="header" href="#when-to-use-which-transport">When to use which transport</a></h2>
 <ul>
 <li>Use <code>QuicTransport</code> when you need a reliable, stream-based message channel.</li>
@@ -647,11 +740,53 @@ println!("received {:?} from {}", message, peer_addr);</code></pre>
 <h2 id="example-2"><a class="header" href="#example-2">Example</a></h2>
 <p>See <a href="https://github.com/druntime/dnet/tree/main/dnet/examples/ipc">IPC example</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="websocket"><a href="#websocket" class="header">WebSocket</a></h1>
-<p>TODO</p>
+<h1 id="websocket-transport"><a class="header" href="#websocket-transport">WebSocket transport</a></h1>
+<p><a href="https://docs.rs/dnet/latest/dnet/websocket/struct.WebSocketTransport.html"><code>WebSocketTransport</code></a> wraps a WebSocket connection and exposes it as a <code>dnet</code> transport.
+It sends and receives binary messages using a configured <code>Codec</code> to (de)serialize them.</p>
+<p>On <code>wasm32</code>, this transport wraps a browser <a href="https://docs.rs/web-sys/latest/web_sys/struct.WebSocket.html"><code>web_sys::WebSocket</code></a>.
+On native targets it wraps a <a href="https://github.com/snapview/tokio-tungstenite"><code>tokio_tungstenite</code></a>’s <a href="https://docs.rs/tokio-tungstenite/latest/tokio_tungstenite/struct.WebSocketStream.html"><code>WebSocketStream</code></a>.
+For <code>axum</code> servers, use <a href="https://docs.rs/dnet/latest/dnet/websocket/axum/struct.WebSocketTransport.html"><code>dnet::websocket::axum::WebSocketTransport</code></a> with <a href="https://docs.rs/axum/latest/axum/extract/ws/struct.WebSocket.html"><code>axum::extract::ws::WebSocket</code></a>.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>This transports <code>WebSocket</code> binary frames only. Text, ping, pong and other non-binary frames are ignored by the receiver.</p>
+</blockquote>
+<h2 id="browser-example"><a class="header" href="#browser-example">Browser example</a></h2>
+<pre><code class="language-rust">use futures::SinkExt;
+use dnet::{codecs::BincodeCodec, websocket::WebSocketTransport, Receive};
+use web_sys::WebSocket;
+
+let web_socket = WebSocket::new("ws://localhost:8080/ws")?;
+let mut transport = WebSocketTransport::new(web_socket, BincodeCodec::default()).await?;
+
+transport.send("hello".to_string()).await?;
+let reply: String = transport.receive().await?;</code></pre>
+<h2 id="native-example"><a class="header" href="#native-example">Native example</a></h2>
+<pre><code class="language-rust">use futures::SinkExt;
+use dnet::{codecs::BincodeCodec, websocket::WebSocketTransport, Receive};
+use tokio_tungstenite::connect_async;
+
+let (stream, _) = connect_async("ws://localhost:8080/ws").await?;
+let mut transport = WebSocketTransport::new(stream, BincodeCodec::default());
+
+transport.send("hello".to_string()).await?;
+let reply: String = transport.receive().await?;</code></pre>
+<p>If you want the transport to create the connection for you, native clients can use <code>WebSocketTransport::new_with_address(url, codec).await</code>.</p>
+<h2 id="axum-server-example"><a class="header" href="#axum-server-example">Axum server example</a></h2>
+<pre><code class="language-rust">use futures::SinkExt;
+use dnet::{codecs::BincodeCodec, websocket::axum::WebSocketTransport, Receive};
+use axum::extract::ws::WebSocket;
+
+async fn handle_socket(socket: WebSocket) {
+    let (mut sender, mut receiver) =
+        WebSocketTransport::new(socket, BincodeCodec::default()).split();
+
+    sender.send("welcome".to_string()).await.unwrap();
+    let message: String = receiver.receive().await.unwrap();
+    println!("received {message}");
+}</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="web-worker-transport"><a class="header" href="#web-worker-transport">Web Worker transport</a></h1>
-<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html"><code>WebWorkerTransport</code></a> is used for communication between a host page (or host worker) and a Web Worker.
+<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html"><code>WebWorkerTransport</code></a> is used for communication between a host page (or host worker) and a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker">Web Worker</a>.
 It uses the worker’s <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage"><code>postMessage</code></a> method and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker/onmessage"><code>onmessage</code></a> events (and their equivalents in worker context - <a href="https://developer.mozilla.org/en-US/docs/Web/API/DedicatedWorkerGlobalScope/postMessage"><code>DedicatedWorkerGlobalScope.postMessage</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/DedicatedWorkerGlobalScope/onmessage"><code>DedicatedWorkerGlobalScope.onmessage</code></a>) to exchange messages.</p>
 <ul>
 <li><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html#method.new"><code>WebWorkerTransport::new(worker, codec).await</code></a> creates a transport for the worker on the host side.</li>
@@ -666,7 +801,7 @@ It uses the worker’s <a href="https://developer.mozilla.org/en-US/docs/Web/API
 <p>Named transports are useful when the host or worker needs multiple channels.
 Multiple named transports can be used simultaneously alongside an unnamed transport in the same page or worker.</p>
 <p>Workers can themselves host nested workers and use <code>WebWorkerTransport::new(...)</code> from within a worker context to create transports to child workers.</p>
-<p>This transport is appropriate when you want a direct worker-host channel. If you need to use a dedicated <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessagePort">MessagePort</a> or send <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects">transferable</a> objects, see the <a href="#messageport-transport">MessagePort</a> and <a href="#transferable">Transferable</a> transport sections.</p>
+<p>This transport is appropriate when you want a direct worker-host channel. If you need to use a dedicated <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessagePort">MessagePort</a> or send <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects">transferable</a> objects, see the <a href="#messageport-transport">MessagePort</a> and <a href="#transferable-transport">Transferable</a> transport sections.</p>
 <h2 id="host-example"><a class="header" href="#host-example">Host example</a></h2>
 <pre><code class="language-rust">use futures::SinkExt;
 use dnet::{codecs::BincodeCodec, webworker::WebWorkerTransport, Receive};
@@ -719,7 +854,7 @@ It is useful when you need a dedicated channel between two JavaScript contexts, 
 <p>Multiple named transports can coexist on the same <code>MessagePort</code>, and they can be used at the same time as an unnamed transport on that port.
 This makes it easy to multiplex several logical channels over the same underlying port pair.</p>
 <p>If you only need a direct worker-host channel, prefer <a href="#web-worker-transport"><code>WebWorkerTransport</code></a>.</p>
-<p>If you need to send transferable objects across the port, see the <a href="#transferable">Transferable</a> transport section.</p>
+<p>If you need to send transferable objects across the port, see the <a href="#transferable-transport">Transferable</a> transport section.</p>
 <h2 id="example-3"><a class="header" href="#example-3">Example</a></h2>
 <p>Create a <code>MessageChannel</code>, then wrap each port with <code>MessagePortTransport</code>.</p>
 <pre><code class="language-rust">use futures::SinkExt;
@@ -740,32 +875,459 @@ let mut right = MessagePortTransport::new(port2, BincodeCodec::default()).await?
 let reply: String = right.receive().await?;
 right.send(format!("hello from right, got: {}", reply)).await?;</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="transferable"><a href="#transferable" class="header">Transferable</a></h1>
-<p>TODO</p>
-<div style="break-before: page; page-break-before: always;"></div>
-<h1 id="dnet-utility-transports"><a class="header" href="#dnet-utility-transports"><code>dnet</code> utility transports</a></h1>
-<p><code>dnet</code> also provides a small set of transport utilities that wrap or adapt existing transports without introducing a new network protocol. These helpers live in the <a href="https://docs.rs/dnet/latest/dnet/utils/index.html"><code>dnet::utils</code></a> module and are useful when you want to reshape, filter, or connect transports.</p>
+<h1 id="transferable-transport"><a class="header" href="#transferable-transport">Transferable transport</a></h1>
+<p><a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/struct.TransferableTransport.html"><code>TransferableTransport</code></a> is a <code>dnet</code> transport for browser <code>postMessage</code> targets that need to transfer both data and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects">transferable objects</a>.</p>
+<p>It wraps a target implementing <a href="https://docs.rs/dnet-js/latest/dnet_js/trait.PostMessage.html"><code>PostMessage</code></a> such as:</p>
 <ul>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/pipe/struct.Pipe.html"><code>Pipe</code></a> — connects two transports in both directions so messages can flow back and forth. It is not a transport itself; it is a helper for linking two transports together.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/filter/struct.Filtering.html"><code>Filtering</code></a> — wraps a transport and drops incoming or outgoing messages based on a predicate.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/map/struct.Mapping.html"><code>Mapping</code></a> — adapts a transport to a different message type by mapping outgoing messages and unmapping incoming ones.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split2.html"><code>Split2</code></a>, <a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split3.html"><code>Split3</code></a>, <a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split4.html"><code>Split4</code></a>, and <a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split5.html"><code>Split5</code></a> — split a transport carrying a tagged message enum into multiple transports with different message types.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/unwrap/trait.Unwrapping.html"><code>Unwrapping</code></a> — converts incoming messages that implement <code>Unwrap</code> into their inner payloads.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/latest/struct.Latest.html"><code>Latest</code></a> — wraps a numbered transport and only exposes the newest messages, discarding older ones.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/void/struct.Void.html"><code>Void</code></a> — a transport that accepts outgoing messages but never produces incoming ones.</li>
+<li><a href="https://docs.rs/web-sys/latest/web_sys/struct.Worker.html"><code>web_sys::Worker</code></a></li>
+<li><a href="https://docs.rs/web-sys/latest/web_sys/struct.DedicatedWorkerGlobalScope.html"><code>web_sys::DedicatedWorkerGlobalScope</code></a></li>
+<li><a href="https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html"><code>web_sys::MessagePort</code></a></li>
+</ul>
+<p><code>TransferableTransport</code> works with messages that implement the <a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/trait.IntoTransferable.html"><code>IntoTransferable</code></a> / <a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/trait.FromTransferable.html"><code>FromTransferable</code></a> conversion traits:</p>
+<ul>
+<li><code>IntoTransferable&lt;Context, Error&gt;</code> first converts outgoing messages into an (arbitrary) type implementing <a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/trait.Transferable.html"><code>Transferable</code></a> trait.</li>
+<li><code>Transferable</code> trait implementation is then responsible for preparing message for transfer through the transport by converting it into <a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/struct.WithTransferable.html"><code>WithTransferable</code></a> type, which contains both the serialized message data (packed into JS object) and an JS array of transferable objects.</li>
+<li>For incoming messages (on the receiving end), <code>Transferable</code> trait implementation is responsible for reconstructing the original message from the received JS object (handling of transferable objects is done automatically by the browser).</li>
+<li><code>FromTransferable&lt;Context, Error&gt;</code> reconstructs incoming messages from the (arbitrary) <code>Transferable</code> type.</li>
+</ul>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p><code>Transferable</code> trait uses arbitrary <code>Context</code> (passed by the user to <code>TransferableTransport</code> during construction).<br>
+It may be used to store codec, works buffers, etc., required for message serialization and deserialization.</p>
+</blockquote>
+<h2 id="when-to-use-1"><a class="header" href="#when-to-use-1">When to use</a></h2>
+<p>Use <code>TransferableTransport</code> when you need to send browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects">transferable objects</a>, like:</p>
+<ul>
+<li><a href="https://docs.rs/js-sys/latest/js_sys/struct.ArrayBuffer.html"><code>ArrayBuffer</code></a></li>
+<li><a href="https://docs.rs/web-sys/latest/web_sys/struct.OffscreenCanvas.html"><code>OffscreenCanvas</code></a></li>
+<li><a href="https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html"><code>MessagePort</code></a></li>
+</ul>
+<p>If you only need serializable messages - without transferable objects - prefer <a href="https://docs.rs/dnet-js/latest/dnet_js/struct.Transport.html"><code>dnet::js::Transport</code></a> or its more specialized variants, such as <a href="https://docs.rs/dnet/latest/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html"><code>MessagePortTransport</code></a> or <a href="https://docs.rs/dnet/latest/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html"><code>WebWorkerTransport</code></a>.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>When directly using <code>dnet::js::Transport</code> over a <code>MessagePort</code>, remember to call <a href="https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html#method.start"><code>port.start()</code></a> on both sides before sending messages.</p>
+</blockquote>
+<h2 id="implementing-intotransferable-and-fromtransferable"><a class="header" href="#implementing-intotransferable-and-fromtransferable">Implementing <code>IntoTransferable</code> and <code>FromTransferable</code></a></h2>
+<p>Implementing <code>IntoTransferable</code>, <code>FromTransferable</code> and <code>Transferable</code> manually is straightforward, but can be tedious.</p>
+<p>Use <a href="https://docs.rs/dnet-js/latest/dnet_js/derive.IntoTransferable.html"><code>#[derive(IntoTransferable)]</code></a> to implement those traits automatically:</p>
+<pre><code class="language-rust">use js_sys::ArrayBuffer;
+use dnet::js::{IntoTransferable, Transferable};
+
+#[derive(IntoTransferable)]
+struct Message {
+    some_field: String,
+
+    #[transferable]
+    buffer: ArrayBuffer,
+}</code></pre>
+<p>Transferable fields must be marked with <code>#[transferable]</code>.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>Generated <code>IntoTransferable</code> implementation expects you to use <a href="https://docs.rs/dnet-js/latest/dnet_js/wrapper/struct.Context.html"><code>dnet::js::wrapper::Context</code></a> with your transport.<br>
+If you need to use a different context type, implement <code>IntoTransferable</code> and <code>FromTransferable</code> manually.</p>
+</blockquote>
+<h3 id="nested-intotransferables"><a class="header" href="#nested-intotransferables">Nested <code>IntoTransferable</code>s</a></h3>
+<p>Messages deriving <code>IntoTransferable</code> can contain nested fields that also implement <code>IntoTransferable</code>.</p>
+<p>Mark such fields with <code>#[into_transferable]</code>:</p>
+<pre><code class="language-rust">use js_sys::ArrayBuffer;
+use dnet::js::IntoTransferable;
+
+#[derive(IntoTransferable)]
+struct Nested {
+    #[transferable]
+    buffer: ArrayBuffer,
+}
+
+#[derive(IntoTransferable)]
+struct Message {
+    some_field: String,
+
+    #[into_transferable]
+    nested: Nested,
+}</code></pre>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>For convenience <code>IntoTransferable</code> is implemented for typed JS <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray">typed array</a> types - see <code>IntoTransferable</code>’s <a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/trait.IntoTransferable.html#foreign-impls">foreign impls</a>.</p>
+<p>Example:</p>
+<pre><code class="language-rust">use js_sys::Uint16Array;
+use dnet::js::IntoTransferable;
+
+#[derive(Debug, IntoTransferable)]
+struct Message {
+     #[into_transferable]
+     array: Uint16Array,
+}</code></pre>
+</blockquote>
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p><code>#[derive(IntoTransferable)]</code> macro will generate extra structures named:</p>
+<ul>
+<li><code>&lt;YourTypeName&gt;Wrapper</code>,</li>
+<li><code>&lt;YourTypeName&gt;Stripped</code>,</li>
+<li><code>&lt;YourTypeName&gt;IntoTransferables</code> (only if nested <code>#[into_transferable]</code> fields are present),</li>
+</ul>
+<p>where <code>&lt;YourTypeName&gt;</code> is the name of your message.</p>
+<p>If name collision(s) occurs, consider putting your message type into a separate module or - if not possible - implementing <code>IntoTransferable</code> and <code>FromTransferable</code> manually.</p>
+</blockquote>
+<h2 id="example-4"><a class="header" href="#example-4">Example</a></h2>
+<p>The following example demonstrates how a host and a worker can exchange messages with transferable objects using <code>TransferableTransport</code>:</p>
+<pre><code class="language-rust">use futures::SinkExt;
+use js_sys::{ArrayBuffer, Uint8Array};
+use std::rc::Rc;
+use web_sys::{MessageChannel, Worker, WorkerOptions, WorkerType};
+
+use dnet::{
+    codecs::BincodeCodec,
+    js::{wrapper::Context, IntoTransferable, TransferableTransport},
+    Receive,
+};
+
+#[derive(IntoTransferable)]
+struct Message {
+    #[transferable]
+    buffer: ArrayBuffer,
+}
+
+async fn host_example() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    let options = WorkerOptions::new();
+    options.set_type(WorkerType::Module);
+    let worker = Worker::new_with_options("./worker.js", &amp;options)?;
+
+    let context = Context::new(BincodeCodec::default());
+    let mut transport = TransferableTransport::&lt;_, _, Message, Message, _&gt;::new(
+        &amp;worker,
+        None,
+        context,
+        true,
+    )
+    .await?;
+
+    let buffer = ArrayBuffer::new_with_length(8);
+    Uint8Array::new(&amp;buffer).copy_from(&amp;[1, 2, 3, 4, 5, 6, 7, 8]);
+
+    transport.send(Message { buffer }).await?;
+    Ok(())
+}
+
+async fn worker_example(
+    global: Rc&lt;web_sys::DedicatedWorkerGlobalScope&gt;,
+) -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    let context = Context::new(BincodeCodec::default());
+    let mut transport = TransferableTransport::&lt;_, _, Message, Message, _&gt;::new(
+        &amp;global,
+        None,
+        context,
+        false,
+    )
+    .await?;
+
+    let received = transport.receive().await?;
+    let Message { buffer } = received;
+    assert_eq!(Uint8Array::new(&amp;buffer).to_vec(), vec![1, 2, 3, 4, 5, 6, 7, 8]);
+
+    Ok(())
+}</code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="webrtc-data-channel"><a class="header" href="#webrtc-data-channel">WebRTC data channel</a></h1>
+<p>The <a href="https://webrtc.org/">WebRTC</a> <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Using_data_channels">data channel</a> transport lets peers exchange arbitrary messages using WebRTC data channels. It provides a peer-to-peer messaging option that works both in browser environments and natively, enabling low-latency, direct connections between endpoints.</p>
+<p>Beyond the core transport, the WebRTC support in this project includes higher-level features that simplify real-world use:</p>
+<ul>
+<li>built-in handling of signaling so peers can be connected with minimal setup,</li>
+<li>server- and client-side connection management to coordinate multiple peer connections through a shared signaling channel,</li>
+<li>an option for manual (custom) signaling when you need tighter control; and automatic and robust ICE candidate negotiation.</li>
+</ul>
+<p>The implementation supports both browser and native runtimes.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>The WebRTC data channel transport is part of the <code>dnet-webrtc</code> offering and is available under a commercial license.<br>
+The commercial package includes full source access, production-focused support, and example applications illustrating common deployment patterns.</p>
+<p>See <code>dnet</code> <a href="https://github.com/druntime/dnet/blob/main/README.md">README</a> for more information.</p>
+</blockquote>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="dnet-utilities"><a class="header" href="#dnet-utilities"><code>dnet</code> utilities</a></h1>
+<p><code>dnet</code> comes with the following set of utilities (under “utils” feature, enabled by default):</p>
+<ul>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/filter/struct.Filtering.html"><code>Filtering</code></a> — wraps a transport and drops incoming or outgoing messages based on a predicate.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/map/struct.Mapping.html"><code>Mapping</code></a> — adapts a transport to a different message type by mapping outgoing messages and unmapping incoming ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split2.html"><code>Split2</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split3.html"><code>Split3</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split4.html"><code>Split4</code></a>, and <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split5.html"><code>Split5</code></a> — <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/index.html">split</a> a transport carrying a tagged message enum into multiple transports with different message types.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrapping.html"><code>Unwrapping</code></a> — converts incoming messages that implement <a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrap.html"><code>Unwrap</code></a> into their inner payloads.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/latest/struct.Latest.html"><code>Latest</code></a> — wraps a numbered transport and only exposes the newest messages, discarding older ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/struct.ChannelTransport.html"><code>ChannelTransport</code></a> — transport over <a href="https://github.com/rust-lang/futures-rs">futures</a> channels, useful for testing and debugging. Can be conveniently created with <a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/fn.transports.html"><code>transports()</code></a> function.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/merge/struct.MergedTransport.html"><code>MergedTransport</code></a> — merges a <a href="https://docs.rs/futures/latest/futures/sink/trait.Sink.html">sink</a> and <a href="https://docs.rs/futures/latest/futures/stream/trait.Stream.html">stream</a> into a single transport.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/number/struct.Numbered.html"><code>Numbered</code></a> — wraps a transport and adds sequence numbers to messages.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/wall/struct.Wall.html"><code>Wall</code></a> — a transport that rejects every operation, returning an error on send, receive, flush, or close.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/void/struct.Void.html"><code>Void</code></a> — a transport that accepts outgoing messages (but “sends” them into a ‘void’) and never produces incoming ones.</li>
+</ul>
+<p>And:</p>
+<ul>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/pipe/struct.Pipe.html"><code>Pipe</code></a> — connects two transports in both directions so messages can flow back and forth. It is not a transport itself; it is a helper for linking two transports together.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="remote-procedure-call"><a href="#remote-procedure-call" class="header">Remote Procedure Call</a></h1>
-<p>TODO</p>
+<h1 id="remote-procedure-call"><a class="header" href="#remote-procedure-call">Remote Procedure Call</a></h1>
+<p><code>dnet</code>’s <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/"><code>rpc</code></a> module (enabled by the “rpc” feature, which is enabled by default) provides a type-safe implementation of Remote Procedure Calls (<a href="https://en.wikipedia.org/wiki/Remote_procedure_call">RPC</a>) that works over any transport supported by <code>dnet</code>.</p>
+<h2 id="what-is-rpc"><a class="header" href="#what-is-rpc">What is RPC</a></h2>
+<p>Remote Procedure Call (RPC) allows code running in one execution context to invoke functions that execute in another context as if they were ordinary local function calls.</p>
+<p>The two sides may be running:</p>
+<ul>
+<li>in different processes,</li>
+<li>on different computers connected over a network,</li>
+<li>in different browser tabs,</li>
+<li>inside Web Workers,</li>
+<li>or on any other pair of peers connected through a <code>dnet</code> transport.</li>
+</ul>
+<p>With <code>dnet</code>, you define your API once as a Rust trait, implement it on one side, and obtain a strongly typed client on the other. Serialization, message routing, request/response matching, and asynchronous communication are handled automatically.</p>
+<h2 id="steps"><a class="header" href="#steps">Steps</a></h2>
+<p>Implementing an RPC service consists of a few simple steps:</p>
+<ol>
+<li>Define your service interface (see <a href="#api">API</a> section).</li>
+<li>Implement the generated producer for your service (see <a href="#producing">Producing</a> section).</li>
+<li>Establish a connection between two peers using any supported <code>dnet</code> transport.</li>
+<li>On the server side, register the service by calling <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/producer/trait.Produce.html#tymethod.produce"><code>produce(...)</code></a>.</li>
+<li>On the client side, create a typed client by calling <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/trait.Consume.html#tymethod.consume"><code>consume(...)</code></a>.</li>
+</ol>
+<p>Once the connection is established, you simply call methods on the generated consumer (see <a href="#consuming">Consuming</a> section). The RPC layer transparently serializes arguments, sends requests over the selected transport, executes the corresponding server-side method, and returns the result.</p>
+<h2 id="example-5"><a class="header" href="#example-5">Example</a></h2>
+<p>For a complete example, see the <a href="https://github.com/druntime/dnet/tree/main/dnet/examples/rpc">RPC example</a> in the <code>dnet</code> repository.</p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="api"><a href="#api" class="header">API</a></h1>
-<p>TODO</p>
+<h1 id="api"><a class="header" href="#api">API</a></h1>
+<p>The first step when using <code>dnet</code> RPC is defining your service API.</p>
+<p>An API is a Rust trait that describes the remote methods exposed by a producer (server) and available to a consumer (client). The trait acts as the single source of truth for your RPC interface - <code>dnet</code> generates all request/response types and client/server glue code from it.</p>
+<h2 id="defining-the-api-trait"><a class="header" href="#defining-the-api-trait">Defining the API trait</a></h2>
+<p>Use <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/attr.api.html"><code>#[api]</code></a> marker on a trait that describes your remote service interface:</p>
+<pre><code class="language-rust">// ...
+
+use dnet::rpc::{api, no_ack};
+
+#[api]
+pub trait Api {
+    /// Print "Hello World!" message on the server.
+    #[no_ack]
+    async fn hello_world(&amp;self);
+
+    /// Add two numbers together.
+    async fn add_numbers(&amp;self, a: i32, b: i32) -&gt; i32;
+
+    /// Concatenate two strings together.
+    async fn concatenate_strings(&amp;self, a: String, b: String) -&gt; String;
+
+    /// Repeatedly send server time at a given interval.
+    async fn stream_time(&amp;self, interval: Duration) -&gt; impl Stream&lt;Item = NaiveTime&gt;;
+}</code></pre>
+<p>The macro generates the following items:</p>
+<ul>
+<li><code>Request</code> enum — serializable request payloads for each method</li>
+<li><code>Response</code> enum — serializable response payloads and stream items</li>
+<li><code>Consumer</code> struct — client-side API for making RPC calls</li>
+<li><code>impl_produce</code> macro — producer-side helper for wiring your implementation to the RPC runtime</li>
+</ul>
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p>The generated types (<code>Request</code>, <code>Response</code>, <code>Consumer</code>, and <code>impl_produce</code>) have fixed names. Because of this, defining multiple <code>#[api]</code> traits in the same Rust module will result in name collisions.</p>
+<p>Define each API trait in its own module.</p>
+</blockquote>
+<h2 id="method-types"><a class="header" href="#method-types">Method types</a></h2>
+<p>The generated API understands several kinds of methods:</p>
+<ul>
+<li>ordinary request/response methods return a value and wait for a response</li>
+<li><code>#[no_ack]</code> methods are fire-and-forget and do not wait for a response</li>
+<li>async methods that return <code>impl Stream&lt;Item = T&gt;</code> create a stream from producer to consumer</li>
+<li><code>#[abortable]</code> methods receive an extra <code>AbortionToken</code> argument that can be used to cancel the request from the consumer side</li>
+</ul>
+<h3 id="fire-and-forget-methods"><a class="header" href="#fire-and-forget-methods">Fire-and-forget methods</a></h3>
+<p>Annotate a method with <code>#[no_ack]</code> marker when the consumer should not wait for a response.
+The producer receives the request, but it does not send a response back.</p>
+<h3 id="streaming-methods"><a class="header" href="#streaming-methods">Streaming methods</a></h3>
+<p>If a method returns <code>impl Stream&lt;Item = T&gt;</code>, the generated RPC consumer will receive a stream handle when the request is made.
+Values produced by the server are sent to the consumer until the stream closes or is aborted.</p>
+<h3 id="aborting-requests"><a class="header" href="#aborting-requests">Aborting requests</a></h3>
+<p>The <code>#[abortable]</code> attribute adds an <code>AbortionToken</code> to the producer method signature.
+The consumer can abort a request or stream, and the token allows the producer to react to that event.</p>
+<h2 id="serialization-and-no_serde"><a class="header" href="#serialization-and-no_serde">Serialization and <code>no_serde</code></a></h2>
+<p>By default, generated <code>Request</code> and <code>Response</code> enums derive <code>Serialize</code> and <code>Deserialize</code> using <code>serde</code>.
+If you need to disable serialization for one or both enums, use the <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/attr.no_serde.html"><code>#[no_serde]</code></a> attribute.</p>
+<p>The <code>#[no_serde]</code> macro can be used as:</p>
+<ul>
+<li><code>#[no_serde]</code> — disable serialization for both request and response</li>
+<li><code>#[no_serde(request)]</code> — disable (de)serialization for request only</li>
+<li><code>#[no_serde(response)]</code> — disable (de)serialization for response only</li>
+<li><code>#[no_serde(request_serialize)]</code> — disable request serialization only</li>
+<li><code>#[no_serde(request_deserialize)]</code> — disable request deserialization only</li>
+<li><code>#[no_serde(response_serialize)]</code> — disable response serialization only</li>
+<li><code>#[no_serde(response_deserialize)]</code> — disable response deserialization only</li>
+</ul>
+<p>This is useful when used with arguments/return types that are not serializable and RPC is meant to be used over <code>dnet</code> transports that don’t require serialization before sending messages or message encoding/decoding is meant to be implemented manually, using non-<code>serde</code> scheme.</p>
+<h2 id="transferable-objects"><a class="header" href="#transferable-objects">Transferable objects</a></h2>
+<p>Use the <code>#[transferable]</code> and <code>#[into_transferable]</code> attributes when your API needs to use browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects">transferable objects</a> (your RPC service is meant to be used over a <a href="#transferable-transport"><code>TransferableTransport</code></a>).</p>
+<p>Attributes can be applied to individual function arguments.</p>
+<p>Because Rust does not allow placing attributes directly on a return type, mark the whole method with <code>#[transferable]</code> or <code>#[into_transferable]</code> when you intend the return value (or stream items) to be transferable.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p><code>#[transferable]</code> is not supported for stream responses - use <code>#[into_transferable]</code> for streaming methods.</p>
+</blockquote>
+<p>When any <code>#[transferable]</code> / <code>#[into_transferable]</code> attribute is used in an <code>#[api]</code> trait, the API generation automatically switches to the transferable serialization mode. The generated <code>Request</code> and <code>Response</code> enums derive <a href="https://docs.rs/dnet-js/latest/dnet_js/derive.IntoTransferable.html"><code>IntoTransferable</code></a> and the appropriate fields are annotated (for example <code>#[transferable]</code> on transferable fields and <code>#[into_transferable]</code> on nested/into-converted fields).</p>
+<p>Because transferable mode uses <code>IntoTransferable</code> conversions instead of <code>serde</code>, use of these attributes implies <code>#[no_serde]</code> for the API.</p>
+<p>This feature is intended for use with the <a href="#transferable-transport">transferable transport</a> - see its documentation for more details.</p>
+<p>Example API using transferable attributes:</p>
+<pre><code class="language-rust">use dnet_rpc::api;
+use js_sys::{ArrayBuffer, Float32Array, Uint32Array, Uint8Array};
+use futures::Stream;
+
+#[api]
+pub trait Api {
+    #[no_ack]
+    async fn test_no_ack(&amp;self, #[transferable] some_array_buffer: ArrayBuffer);
+
+    async fn add(&amp;self, #[into_transferable] floats: Float32Array) -&gt; f32;
+
+    #[transferable]
+    async fn get_some_transferable(&amp;self) -&gt; ArrayBuffer;
+
+    #[into_transferable]
+    async fn stream(&amp;self) -&gt; impl Stream&lt;Item = Uint32Array&gt;;
+}</code></pre>
+<p>Generated request/response enums (transferable mode) derive [<code>IntoTransferable</code>] and annotate fields appropriately. For example:</p>
+<pre><code class="language-rust">#[derive(Debug, Clone, ::dnet_js::IntoTransferable)]
+pub enum Request {
+    SendTransferable { #[transferable] data: OffscreenCanvas },
+    GetData {},
+}
+
+#[derive(Debug, Clone, ::dnet_js::IntoTransferable)]
+pub enum Response {
+    SendTransferable(()),
+    GetData(#[into_transferable] Data),
+}</code></pre>
+<h2 id="where-to-go-next"><a class="header" href="#where-to-go-next">Where to go next</a></h2>
+<p>Read the <a href="#producing">Producing</a> page for the producer implementation details, and the <a href="#consuming">Consuming</a> page for the client-side consumption of the API.</p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="producing"><a href="#producing" class="header">Producing</a></h1>
-<p>TODO</p>
+<h1 id="producing"><a class="header" href="#producing">Producing</a></h1>
+<p>A producer is the server-side implementation of your RPC API. It receives requests from consumers, executes the requested methods, and sends responses or stream items back.</p>
+<h2 id="implementing-a-producer"><a class="header" href="#implementing-a-producer">Implementing a producer</a></h2>
+<p>Suppose you have the following API:</p>
+<pre><code class="language-rust">#[api]
+pub trait Api {
+    async fn add_numbers(&amp;self, a: i32, b: i32) -&gt; i32;
+
+    #[no_ack]
+    async fn hello_world(&amp;self);
+
+    async fn stream_time(&amp;self, interval: Duration) -&gt; impl Stream&lt;Item = NaiveTime&gt;;
+}</code></pre>
+<p>You can implement it on any type:</p>
+<pre><code class="language-rust">#[derive(Produce)]
+pub struct Producer;
+
+impl Producer {
+    async fn add_numbers(&amp;self, a: i32, b: i32) -&gt; i32 {
+        a + b
+    }
+
+    async fn hello_world(&amp;self) {
+        println!("Hello World!");
+    }
+
+    fn stream_time(
+        &amp;self,
+        interval: Duration,
+    ) -&gt; impl Stream&lt;Item = NaiveTime&gt; {
+        // ...
+    }
+}</code></pre>
+<p>The <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/derive.Produce.html"><code>Produce</code></a> derive macro uses the generated <code>impl_produce!</code> macro from <code>#[api]</code> to generate the RPC dispatch implementation.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p><code>impl_produce!</code>, <code>Request</code>, <code>Response</code> must be in scope for the <code>Produce</code> derive macro to work.<br>
+It is generated by the <code>#[api]</code> macro alongside the <code>Request</code>, <code>Response</code>, and <code>Consumer</code> types.</p>
+</blockquote>
+<h2 id="why-not-implement-apis-async-trait"><a class="header" href="#why-not-implement-apis-async-trait">Why not implement API’s async trait?</a></h2>
+<p><code>dnet</code> deliberately does <strong>not</strong> expect producers to implement the API trait to avoid current limitations of the Rust’s async traits.</p>
+<p>Instead [<code>Produce</code>] derive macro uses <code>impl_produce!</code> internally to glue itself to methods implemented directly on your type.</p>
+<h3 id="abortable-methods"><a class="header" href="#abortable-methods">Abortable methods</a></h3>
+<p>An abortable API method:</p>
+<pre><code class="language-rust">#[abortable]
+async fn long_task(&amp;self);</code></pre>
+<p>expects the producer implementation to have an additional <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/producer/abortable/struct.AbortionToken.html"><code>AbortionToken</code></a> argument:</p>
+<pre><code class="language-rust">async fn long_task(
+    &amp;self,
+    token: AbortionToken,
+) {
+    // ...
+}</code></pre>
+<p>The token becomes cancelled when the consumer aborts the request or stream, allowing the producer to stop any ongoing work.</p>
+<h2 id="producing-1"><a class="header" href="#producing-1">Producing</a></h2>
+<p>Once your producer implementation is ready, you can call <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/producer/trait.Produce.html#tymethod.produce"><code>produce(...)</code></a> over a <code>dnet</code> transport:</p>
+<pre><code class="language-rust">use dnet::rpc::producer::{Configuration, Produce};
+use dnet::{codecs::BincodeCodec, tcp::TcpTransport};
+
+let listener = tokio::net::TcpListener::bind(address).await?;
+loop {
+    let (stream, peer) = listener.accept().await?;
+    let transport = TcpTransport::buffered(stream, BincodeCodec::default());
+    let producer = Producer::new();
+
+    tokio::spawn(async move {
+        let shutdown = producer
+            .produce(transport, Default::default(), Default::default())
+            .await;
+        tracing::info!("Connection {} finished: {:?}", peer, shutdown);
+    });
+}</code></pre>
+<h2 id="where-to-go-next-1"><a class="header" href="#where-to-go-next-1">Where to go next</a></h2>
+<p>Read the <a href="#consuming">Consuming</a> page to learn how to consume the API on the client side.</p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="consuming"><a href="#consuming" class="header">Consuming</a></h1>
-<p>TODO</p>
+<h1 id="consuming"><a class="header" href="#consuming">Consuming</a></h1>
+<p>Consumers are used to consume the service API on the client side.</p>
+<h2 id="creating-a-consumer"><a class="header" href="#creating-a-consumer">Creating a consumer</a></h2>
+<p>The <code>#[api]</code> macro generates a <code>Consumer</code> type for your API trait.</p>
+<p>Create it with <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/trait.Consume.html#tymethod.consume"><code>Consumer::consume</code></a> function over a <code>dnet</code> transport:</p>
+<pre><code class="language-rust">use dnet::rpc::Consume;
+use dnet::{codecs::BincodeCodec, tcp::TcpTransport};
+
+let stream = tokio::net::TcpStream::connect(address).await?;
+let transport = TcpTransport::buffered(stream, BincodeCodec::default());
+let consumer = Consumer::consume(transport, Default::default(), Default::default());</code></pre>
+<h2 id="calling-remote-methods"><a class="header" href="#calling-remote-methods">Calling remote methods</a></h2>
+<p>Once the consumer is created, you call remote methods as ordinary async Rust methods:</p>
+<pre><code class="language-rust">consumer.hello_world().await?;
+let sum = consumer.add_numbers(2, 3).await?;</code></pre>
+<p>Consumer methods return (after awaiting) a <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/type.Result.html"><code>Result</code></a> which error is <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/enum.Error.html"><code>Error</code></a> inside <code>rpc</code> module.</p>
+<h2 id="stream-methods"><a class="header" href="#stream-methods">Stream methods</a></h2>
+<p>If the API declares a streaming method, the consumer call returns a stream handle:</p>
+<pre><code class="language-rust">let mut time_stream = consumer.stream_time(std::time::Duration::from_secs(1)).await?;</code></pre>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>Notice that you have to await your streaming request first - only then you will receive an actual stream instance.</p>
+</blockquote>
+<p>You can then read values from the stream until it closes:</p>
+<pre><code class="language-rust">use futures::StreamExt;
+while let Some(time) = time_stream.next().await {
+    println!("Time: {}", time);
+}</code></pre>
+<p>Streaming consumer methods return type <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/struct.Stream.html"><code>Stream</code></a> inside <code>rpc</code>’s <code>consumer</code> module.</p>
+<h2 id="aborting-requests-and-streams"><a class="header" href="#aborting-requests-and-streams">Aborting requests and streams</a></h2>
+<p>Generated request futures and stream handles support aborting.<br>
+For example:</p>
+<pre><code class="language-rust">use tokio::time::{sleep, Duration};
+
+let mut long_task_future = consumer.long_task();
+let aborter = long_task_future.aborter();
+
+tokio::select! {
+    result = &amp;mut long_task_future =&gt; {
+        println!("Task completed: {result:?}");
+    }
+
+    _ = sleep(Duration::from_secs(10)) =&gt; {
+        aborter.abort();
+        println!("Task aborted due to taking too long.");
+    }
+}</code></pre>
+<h2 id="notes-2"><a class="header" href="#notes-2">Notes</a></h2>
+<ul>
+<li>A consumer can make many requests over the same transport.</li>
+<li>Each request is matched to a response using an internal request ID.</li>
+<li>Streaming values are delivered in order until the producer closes the stream.</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="writing-a-custom-dnet-transport"><a class="header" href="#writing-a-custom-dnet-transport">Writing a custom <code>dnet</code> transport</a></h1>
 <p>A <code>dnet</code> transport must implement the transport contract described in the <a href="#transport-contract">transport contract</a>.</p>

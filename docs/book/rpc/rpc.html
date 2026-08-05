@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-3be1c597.js";
+            window.path_to_searchindex_js = "../searchindex-f469e81a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9fd311d8.js"></script>
+        <script src="../toc-67c34547.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -177,7 +177,31 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <p>TODO</p>
+                        <h1 id="remote-procedure-call"><a class="header" href="#remote-procedure-call">Remote Procedure Call</a></h1>
+<p><code>dnet</code>’s <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/"><code>rpc</code></a> module (enabled by the “rpc” feature, which is enabled by default) provides a type-safe implementation of Remote Procedure Calls (<a href="https://en.wikipedia.org/wiki/Remote_procedure_call">RPC</a>) that works over any transport supported by <code>dnet</code>.</p>
+<h2 id="what-is-rpc"><a class="header" href="#what-is-rpc">What is RPC</a></h2>
+<p>Remote Procedure Call (RPC) allows code running in one execution context to invoke functions that execute in another context as if they were ordinary local function calls.</p>
+<p>The two sides may be running:</p>
+<ul>
+<li>in different processes,</li>
+<li>on different computers connected over a network,</li>
+<li>in different browser tabs,</li>
+<li>inside Web Workers,</li>
+<li>or on any other pair of peers connected through a <code>dnet</code> transport.</li>
+</ul>
+<p>With <code>dnet</code>, you define your API once as a Rust trait, implement it on one side, and obtain a strongly typed client on the other. Serialization, message routing, request/response matching, and asynchronous communication are handled automatically.</p>
+<h2 id="steps"><a class="header" href="#steps">Steps</a></h2>
+<p>Implementing an RPC service consists of a few simple steps:</p>
+<ol>
+<li>Define your service interface (see <a href="./api.html">API</a> section).</li>
+<li>Implement the generated producer for your service (see <a href="./producing.html">Producing</a> section).</li>
+<li>Establish a connection between two peers using any supported <code>dnet</code> transport.</li>
+<li>On the server side, register the service by calling <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/producer/trait.Produce.html#tymethod.produce"><code>produce(...)</code></a>.</li>
+<li>On the client side, create a typed client by calling <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/trait.Consume.html#tymethod.consume"><code>consume(...)</code></a>.</li>
+</ol>
+<p>Once the connection is established, you simply call methods on the generated consumer (see <a href="./consuming.html">Consuming</a> section). The RPC layer transparently serializes arguments, sends requests over the selected transport, executes the corresponding server-side method, and returns the result.</p>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<p>For a complete example, see the <a href="https://github.com/druntime/dnet/tree/main/dnet/examples/rpc">RPC example</a> in the <code>dnet</code> repository.</p>
 
                     </main>
 

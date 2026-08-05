@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-3be1c597.js";
+            window.path_to_searchindex_js = "../searchindex-f469e81a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9fd311d8.js"></script>
+        <script src="../toc-67c34547.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -177,7 +177,158 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <p>TODO</p>
+                        <h1 id="transferable-transport"><a class="header" href="#transferable-transport">Transferable transport</a></h1>
+<p><a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/struct.TransferableTransport.html"><code>TransferableTransport</code></a> is a <code>dnet</code> transport for browser <code>postMessage</code> targets that need to transfer both data and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects">transferable objects</a>.</p>
+<p>It wraps a target implementing <a href="https://docs.rs/dnet-js/latest/dnet_js/trait.PostMessage.html"><code>PostMessage</code></a> such as:</p>
+<ul>
+<li><a href="https://docs.rs/web-sys/latest/web_sys/struct.Worker.html"><code>web_sys::Worker</code></a></li>
+<li><a href="https://docs.rs/web-sys/latest/web_sys/struct.DedicatedWorkerGlobalScope.html"><code>web_sys::DedicatedWorkerGlobalScope</code></a></li>
+<li><a href="https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html"><code>web_sys::MessagePort</code></a></li>
+</ul>
+<p><code>TransferableTransport</code> works with messages that implement the <a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/trait.IntoTransferable.html"><code>IntoTransferable</code></a> / <a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/trait.FromTransferable.html"><code>FromTransferable</code></a> conversion traits:</p>
+<ul>
+<li><code>IntoTransferable&lt;Context, Error&gt;</code> first converts outgoing messages into an (arbitrary) type implementing <a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/trait.Transferable.html"><code>Transferable</code></a> trait.</li>
+<li><code>Transferable</code> trait implementation is then responsible for preparing message for transfer through the transport by converting it into <a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/struct.WithTransferable.html"><code>WithTransferable</code></a> type, which contains both the serialized message data (packed into JS object) and an JS array of transferable objects.</li>
+<li>For incoming messages (on the receiving end), <code>Transferable</code> trait implementation is responsible for reconstructing the original message from the received JS object (handling of transferable objects is done automatically by the browser).</li>
+<li><code>FromTransferable&lt;Context, Error&gt;</code> reconstructs incoming messages from the (arbitrary) <code>Transferable</code> type.</li>
+</ul>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p><code>Transferable</code> trait uses arbitrary <code>Context</code> (passed by the user to <code>TransferableTransport</code> during construction).<br>
+It may be used to store codec, works buffers, etc., required for message serialization and deserialization.</p>
+</blockquote>
+<h2 id="when-to-use"><a class="header" href="#when-to-use">When to use</a></h2>
+<p>Use <code>TransferableTransport</code> when you need to send browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects">transferable objects</a>, like:</p>
+<ul>
+<li><a href="https://docs.rs/js-sys/latest/js_sys/struct.ArrayBuffer.html"><code>ArrayBuffer</code></a></li>
+<li><a href="https://docs.rs/web-sys/latest/web_sys/struct.OffscreenCanvas.html"><code>OffscreenCanvas</code></a></li>
+<li><a href="https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html"><code>MessagePort</code></a></li>
+</ul>
+<p>If you only need serializable messages - without transferable objects - prefer <a href="https://docs.rs/dnet-js/latest/dnet_js/struct.Transport.html"><code>dnet::js::Transport</code></a> or its more specialized variants, such as <a href="https://docs.rs/dnet/latest/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html"><code>MessagePortTransport</code></a> or <a href="https://docs.rs/dnet/latest/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html"><code>WebWorkerTransport</code></a>.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>When directly using <code>dnet::js::Transport</code> over a <code>MessagePort</code>, remember to call <a href="https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html#method.start"><code>port.start()</code></a> on both sides before sending messages.</p>
+</blockquote>
+<h2 id="implementing-intotransferable-and-fromtransferable"><a class="header" href="#implementing-intotransferable-and-fromtransferable">Implementing <code>IntoTransferable</code> and <code>FromTransferable</code></a></h2>
+<p>Implementing <code>IntoTransferable</code>, <code>FromTransferable</code> and <code>Transferable</code> manually is straightforward, but can be tedious.</p>
+<p>Use <a href="https://docs.rs/dnet-js/latest/dnet_js/derive.IntoTransferable.html"><code>#[derive(IntoTransferable)]</code></a> to implement those traits automatically:</p>
+<pre><code class="language-rust">use js_sys::ArrayBuffer;
+use dnet::js::{IntoTransferable, Transferable};
+
+#[derive(IntoTransferable)]
+struct Message {
+    some_field: String,
+
+    #[transferable]
+    buffer: ArrayBuffer,
+}</code></pre>
+<p>Transferable fields must be marked with <code>#[transferable]</code>.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>Generated <code>IntoTransferable</code> implementation expects you to use <a href="https://docs.rs/dnet-js/latest/dnet_js/wrapper/struct.Context.html"><code>dnet::js::wrapper::Context</code></a> with your transport.<br>
+If you need to use a different context type, implement <code>IntoTransferable</code> and <code>FromTransferable</code> manually.</p>
+</blockquote>
+<h3 id="nested-intotransferables"><a class="header" href="#nested-intotransferables">Nested <code>IntoTransferable</code>s</a></h3>
+<p>Messages deriving <code>IntoTransferable</code> can contain nested fields that also implement <code>IntoTransferable</code>.</p>
+<p>Mark such fields with <code>#[into_transferable]</code>:</p>
+<pre><code class="language-rust">use js_sys::ArrayBuffer;
+use dnet::js::IntoTransferable;
+
+#[derive(IntoTransferable)]
+struct Nested {
+    #[transferable]
+    buffer: ArrayBuffer,
+}
+
+#[derive(IntoTransferable)]
+struct Message {
+    some_field: String,
+
+    #[into_transferable]
+    nested: Nested,
+}</code></pre>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>For convenience <code>IntoTransferable</code> is implemented for typed JS <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray">typed array</a> types - see <code>IntoTransferable</code>’s <a href="https://docs.rs/dnet-js/latest/dnet_js/transferable/trait.IntoTransferable.html#foreign-impls">foreign impls</a>.</p>
+<p>Example:</p>
+<pre><code class="language-rust">use js_sys::Uint16Array;
+use dnet::js::IntoTransferable;
+
+#[derive(Debug, IntoTransferable)]
+struct Message {
+     #[into_transferable]
+     array: Uint16Array,
+}</code></pre>
+</blockquote>
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p><code>#[derive(IntoTransferable)]</code> macro will generate extra structures named:</p>
+<ul>
+<li><code>&lt;YourTypeName&gt;Wrapper</code>,</li>
+<li><code>&lt;YourTypeName&gt;Stripped</code>,</li>
+<li><code>&lt;YourTypeName&gt;IntoTransferables</code> (only if nested <code>#[into_transferable]</code> fields are present),</li>
+</ul>
+<p>where <code>&lt;YourTypeName&gt;</code> is the name of your message.</p>
+<p>If name collision(s) occurs, consider putting your message type into a separate module or - if not possible - implementing <code>IntoTransferable</code> and <code>FromTransferable</code> manually.</p>
+</blockquote>
+<h2 id="example"><a class="header" href="#example">Example</a></h2>
+<p>The following example demonstrates how a host and a worker can exchange messages with transferable objects using <code>TransferableTransport</code>:</p>
+<pre><code class="language-rust">use futures::SinkExt;
+use js_sys::{ArrayBuffer, Uint8Array};
+use std::rc::Rc;
+use web_sys::{MessageChannel, Worker, WorkerOptions, WorkerType};
+
+use dnet::{
+    codecs::BincodeCodec,
+    js::{wrapper::Context, IntoTransferable, TransferableTransport},
+    Receive,
+};
+
+#[derive(IntoTransferable)]
+struct Message {
+    #[transferable]
+    buffer: ArrayBuffer,
+}
+
+async fn host_example() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    let options = WorkerOptions::new();
+    options.set_type(WorkerType::Module);
+    let worker = Worker::new_with_options("./worker.js", &amp;options)?;
+
+    let context = Context::new(BincodeCodec::default());
+    let mut transport = TransferableTransport::&lt;_, _, Message, Message, _&gt;::new(
+        &amp;worker,
+        None,
+        context,
+        true,
+    )
+    .await?;
+
+    let buffer = ArrayBuffer::new_with_length(8);
+    Uint8Array::new(&amp;buffer).copy_from(&amp;[1, 2, 3, 4, 5, 6, 7, 8]);
+
+    transport.send(Message { buffer }).await?;
+    Ok(())
+}
+
+async fn worker_example(
+    global: Rc&lt;web_sys::DedicatedWorkerGlobalScope&gt;,
+) -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    let context = Context::new(BincodeCodec::default());
+    let mut transport = TransferableTransport::&lt;_, _, Message, Message, _&gt;::new(
+        &amp;global,
+        None,
+        context,
+        false,
+    )
+    .await?;
+
+    let received = transport.receive().await?;
+    let Message { buffer } = received;
+    assert_eq!(Uint8Array::new(&amp;buffer).to_vec(), vec![1, 2, 3, 4, 5, 6, 7, 8]);
+
+    Ok(())
+}</code></pre>
 
                     </main>
 
@@ -187,7 +338,7 @@
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../transports/utils.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../transports/data-channel.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -201,7 +352,7 @@
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../transports/utils.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../transports/data-channel.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

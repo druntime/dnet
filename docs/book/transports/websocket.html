@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-3be1c597.js";
+            window.path_to_searchindex_js = "../searchindex-f469e81a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9fd311d8.js"></script>
+        <script src="../toc-67c34547.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -177,7 +177,50 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <p>TODO</p>
+                        <h1 id="websocket-transport"><a class="header" href="#websocket-transport">WebSocket transport</a></h1>
+<p><a href="https://docs.rs/dnet/latest/dnet/websocket/struct.WebSocketTransport.html"><code>WebSocketTransport</code></a> wraps a WebSocket connection and exposes it as a <code>dnet</code> transport.
+It sends and receives binary messages using a configured <code>Codec</code> to (de)serialize them.</p>
+<p>On <code>wasm32</code>, this transport wraps a browser <a href="https://docs.rs/web-sys/latest/web_sys/struct.WebSocket.html"><code>web_sys::WebSocket</code></a>.
+On native targets it wraps a <a href="https://github.com/snapview/tokio-tungstenite"><code>tokio_tungstenite</code></a>’s <a href="https://docs.rs/tokio-tungstenite/latest/tokio_tungstenite/struct.WebSocketStream.html"><code>WebSocketStream</code></a>.
+For <code>axum</code> servers, use <a href="https://docs.rs/dnet/latest/dnet/websocket/axum/struct.WebSocketTransport.html"><code>dnet::websocket::axum::WebSocketTransport</code></a> with <a href="https://docs.rs/axum/latest/axum/extract/ws/struct.WebSocket.html"><code>axum::extract::ws::WebSocket</code></a>.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>This transports <code>WebSocket</code> binary frames only. Text, ping, pong and other non-binary frames are ignored by the receiver.</p>
+</blockquote>
+<h2 id="browser-example"><a class="header" href="#browser-example">Browser example</a></h2>
+<pre><code class="language-rust">use futures::SinkExt;
+use dnet::{codecs::BincodeCodec, websocket::WebSocketTransport, Receive};
+use web_sys::WebSocket;
+
+let web_socket = WebSocket::new("ws://localhost:8080/ws")?;
+let mut transport = WebSocketTransport::new(web_socket, BincodeCodec::default()).await?;
+
+transport.send("hello".to_string()).await?;
+let reply: String = transport.receive().await?;</code></pre>
+<h2 id="native-example"><a class="header" href="#native-example">Native example</a></h2>
+<pre><code class="language-rust">use futures::SinkExt;
+use dnet::{codecs::BincodeCodec, websocket::WebSocketTransport, Receive};
+use tokio_tungstenite::connect_async;
+
+let (stream, _) = connect_async("ws://localhost:8080/ws").await?;
+let mut transport = WebSocketTransport::new(stream, BincodeCodec::default());
+
+transport.send("hello".to_string()).await?;
+let reply: String = transport.receive().await?;</code></pre>
+<p>If you want the transport to create the connection for you, native clients can use <code>WebSocketTransport::new_with_address(url, codec).await</code>.</p>
+<h2 id="axum-server-example"><a class="header" href="#axum-server-example">Axum server example</a></h2>
+<pre><code class="language-rust">use futures::SinkExt;
+use dnet::{codecs::BincodeCodec, websocket::axum::WebSocketTransport, Receive};
+use axum::extract::ws::WebSocket;
+
+async fn handle_socket(socket: WebSocket) {
+    let (mut sender, mut receiver) =
+        WebSocketTransport::new(socket, BincodeCodec::default()).split();
+
+    sender.send("welcome".to_string()).await.unwrap();
+    let message: String = receiver.receive().await.unwrap();
+    println!("received {message}");
+}</code></pre>
 
                     </main>
 

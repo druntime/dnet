@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-3be1c597.js";
+            window.path_to_searchindex_js = "../searchindex-f469e81a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9fd311d8.js"></script>
+        <script src="../toc-67c34547.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -178,7 +178,7 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="web-worker-transport"><a class="header" href="#web-worker-transport">Web Worker transport</a></h1>
-<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html"><code>WebWorkerTransport</code></a> is used for communication between a host page (or host worker) and a Web Worker.
+<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html"><code>WebWorkerTransport</code></a> is used for communication between a host page (or host worker) and a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker">Web Worker</a>.
 It uses the worker’s <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage"><code>postMessage</code></a> method and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker/onmessage"><code>onmessage</code></a> events (and their equivalents in worker context - <a href="https://developer.mozilla.org/en-US/docs/Web/API/DedicatedWorkerGlobalScope/postMessage"><code>DedicatedWorkerGlobalScope.postMessage</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/DedicatedWorkerGlobalScope/onmessage"><code>DedicatedWorkerGlobalScope.onmessage</code></a>) to exchange messages.</p>
 <ul>
 <li><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html#method.new"><code>WebWorkerTransport::new(worker, codec).await</code></a> creates a transport for the worker on the host side.</li>

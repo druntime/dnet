@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-3be1c597.js";
+            window.path_to_searchindex_js = "../searchindex-f469e81a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9fd311d8.js"></script>
+        <script src="../toc-67c34547.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -177,23 +177,30 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="dnet-utility-transports"><a class="header" href="#dnet-utility-transports"><code>dnet</code> utility transports</a></h1>
-<p><code>dnet</code> also provides a small set of transport utilities that wrap or adapt existing transports without introducing a new network protocol. These helpers live in the <a href="https://docs.rs/dnet/latest/dnet/utils/index.html"><code>dnet::utils</code></a> module and are useful when you want to reshape, filter, or connect transports.</p>
+                        <h1 id="dnet-utilities"><a class="header" href="#dnet-utilities"><code>dnet</code> utilities</a></h1>
+<p><code>dnet</code> comes with the following set of utilities (under “utils” feature, enabled by default):</p>
 <ul>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/pipe/struct.Pipe.html"><code>Pipe</code></a> — connects two transports in both directions so messages can flow back and forth. It is not a transport itself; it is a helper for linking two transports together.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/filter/struct.Filtering.html"><code>Filtering</code></a> — wraps a transport and drops incoming or outgoing messages based on a predicate.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/map/struct.Mapping.html"><code>Mapping</code></a> — adapts a transport to a different message type by mapping outgoing messages and unmapping incoming ones.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split2.html"><code>Split2</code></a>, <a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split3.html"><code>Split3</code></a>, <a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split4.html"><code>Split4</code></a>, and <a href="https://docs.rs/dnet/latest/dnet/utils/split/trait.Split5.html"><code>Split5</code></a> — split a transport carrying a tagged message enum into multiple transports with different message types.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/unwrap/trait.Unwrapping.html"><code>Unwrapping</code></a> — converts incoming messages that implement <code>Unwrap</code> into their inner payloads.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/latest/struct.Latest.html"><code>Latest</code></a> — wraps a numbered transport and only exposes the newest messages, discarding older ones.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/utils/void/struct.Void.html"><code>Void</code></a> — a transport that accepts outgoing messages but never produces incoming ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/filter/struct.Filtering.html"><code>Filtering</code></a> — wraps a transport and drops incoming or outgoing messages based on a predicate.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/map/struct.Mapping.html"><code>Mapping</code></a> — adapts a transport to a different message type by mapping outgoing messages and unmapping incoming ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split2.html"><code>Split2</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split3.html"><code>Split3</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split4.html"><code>Split4</code></a>, and <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split5.html"><code>Split5</code></a> — <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/index.html">split</a> a transport carrying a tagged message enum into multiple transports with different message types.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrapping.html"><code>Unwrapping</code></a> — converts incoming messages that implement <a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrap.html"><code>Unwrap</code></a> into their inner payloads.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/latest/struct.Latest.html"><code>Latest</code></a> — wraps a numbered transport and only exposes the newest messages, discarding older ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/struct.ChannelTransport.html"><code>ChannelTransport</code></a> — transport over <a href="https://github.com/rust-lang/futures-rs">futures</a> channels, useful for testing and debugging. Can be conveniently created with <a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/fn.transports.html"><code>transports()</code></a> function.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/merge/struct.MergedTransport.html"><code>MergedTransport</code></a> — merges a <a href="https://docs.rs/futures/latest/futures/sink/trait.Sink.html">sink</a> and <a href="https://docs.rs/futures/latest/futures/stream/trait.Stream.html">stream</a> into a single transport.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/number/struct.Numbered.html"><code>Numbered</code></a> — wraps a transport and adds sequence numbers to messages.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/wall/struct.Wall.html"><code>Wall</code></a> — a transport that rejects every operation, returning an error on send, receive, flush, or close.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/void/struct.Void.html"><code>Void</code></a> — a transport that accepts outgoing messages (but “sends” them into a ‘void’) and never produces incoming ones.</li>
+</ul>
+<p>And:</p>
+<ul>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/pipe/struct.Pipe.html"><code>Pipe</code></a> — connects two transports in both directions so messages can flow back and forth. It is not a transport itself; it is a helper for linking two transports together.</li>
 </ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../transports/transferable.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../transports/data-channel.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -207,7 +214,7 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../transports/transferable.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../transports/data-channel.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-3be1c597.js";
+            window.path_to_searchindex_js = "../searchindex-f469e81a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9fd311d8.js"></script>
+        <script src="../toc-67c34547.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -187,6 +187,11 @@
 </ul>
 <p>The transport type is <a href="https://docs.rs/dnet/latest/dnet/udp/struct.UdpTransport.html"><code>UdpTransport&lt;U, Codec, Incoming, Outgoing&gt;</code></a> where <code>U</code> borrows a <code>UdpSocket</code>.
 It supports both connected sockets via <code>Sink&lt;Outgoing&gt;</code> and unconnected send via <a href="https://docs.rs/dnet/latest/dnet/udp/struct.UdpTransport.html#method.send_to"><code>send_to</code></a>.</p>
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p>This is an unreliable transport.<br>
+Messages may be dropped, arrive out of order, or be delivered multiple times.</p>
+</blockquote>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
 <h3 id="connected-udp"><a class="header" href="#connected-udp">Connected UDP</a></h3>
 <pre><code class="language-rust">use futures::SinkExt;

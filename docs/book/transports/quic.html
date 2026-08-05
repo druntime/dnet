@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-3be1c597.js";
+            window.path_to_searchindex_js = "../searchindex-f469e81a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9fd311d8.js"></script>
+        <script src="../toc-67c34547.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -178,29 +178,27 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="quic-transports"><a class="header" href="#quic-transports">QUIC transports</a></h1>
-<p>TODO</p>
-<p><code>dnet</code> provides wrappers around Quinn primitives. The QUIC implementation includes both reliable stream-based transports over <code>SendStream</code>/<code>RecvStream</code> and an unreliable datagram transport over <code>Connection</code>.</p>
+<p><code>dnet</code> provides wrappers around Quinn primitives. The QUIC implementation includes both reliable stream-based transports over <a href="https://docs.rs/quinn/latest/quinn/struct.SendStream.html"><code>SendStream</code></a>/<a href="https://docs.rs/quinn/latest/quinn/struct.RecvStream.html"><code>RecvStream</code></a> and an unreliable datagram transport over <a href="https://docs.rs/quinn/latest/quinn/struct.Connection.html"><code>Connection</code></a>.</p>
 <h2 id="available-transports"><a class="header" href="#available-transports">Available transports</a></h2>
 <ul>
-<li><a href="https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html"><code>QuicFramedTransport</code></a> — framed transport for QUIC streams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html"><code>QuicFramedTransport</code></a> — <a href="./framed.html">framed</a> transport for QUIC streams.</li>
 <li><a href="https://docs.rs/dnet/latest/dnet/quic/struct.QuicTransport.html"><code>QuicTransport</code></a> — length-delimited transport for QUIC streams.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/quic/struct.QuicUnreliableTransport.html"><code>QuicUnreliableTransport</code></a> — unreliable datagram transport built on QUIC datagrams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/unreliable/struct.QuicUnreliableTransport.html"><code>QuicUnreliableTransport</code></a> — unreliable datagram transport built on QUIC datagrams.</li>
 </ul>
 <h2 id="reliable-quic-streams"><a class="header" href="#reliable-quic-streams">Reliable QUIC streams</a></h2>
-<p><code>QuicTransport</code> is the most convenient option for typical message passing over QUIC streams. It composes [<code>QuicFramedTransport</code>] with [<code>dnet::io::length_delimited::Codec</code>].</p>
+<p><code>QuicTransport</code> is the most convenient option for typical message passing over QUIC streams. It composes <code>QuicFramedTransport</code> with <a href="../codecs/framing/length-delimited.html"><code>dnet::io::length_delimited::Codec</code></a>.</p>
 <p><code>QuicTransport</code> supports:</p>
 <ul>
-<li>bidirectional streams via [<code>SendStream</code>] and [<code>RecvStream</code>].</li>
-<li>unidirectional send-only and receive-only streams.</li>
+<li>bidirectional streams (wrapping <code>SendStream</code> and <code>RecvStream</code>).</li>
+<li>unidirectional send-only and receive-only streams (wrapping <code>SendStream</code> or <code>RecvStream</code>).</li>
 <li>buffered versions for better throughput on many small messages.</li>
 <li>configurable maximum message length.</li>
 </ul>
-<h3 id="behavior"><a class="header" href="#behavior">Behavior</a></h3>
-<ul>
-<li>Reliable delivery and in-order delivery are handled by QUIC stream semantics.</li>
-<li>Messages larger than the configured limit return [<code>Error::MessageTooLong</code>].</li>
-<li>The default max message length is [<code>DEFAULT_MAX_MESSAGE_LENGTH</code>].</li>
-</ul>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>This is a reliable transport.<br>
+Reliable delivery and in-order delivery are handled by QUIC stream semantics.</p>
+</blockquote>
 <h2 id="unreliable-quic-datagrams"><a class="header" href="#unreliable-quic-datagrams">Unreliable QUIC datagrams</a></h2>
 <p><code>QuicUnreliableTransport</code> wraps a <code>quinn::Connection</code> and uses QUIC datagrams for message transport.</p>
 <p>This transport inherits QUIC datagram semantics:</p>
@@ -210,11 +208,16 @@
 <li>duplicate delivery is possible.</li>
 <li>messages are bounded by the underlying datagram size.</li>
 </ul>
-<p><code>QuicUnreliableTransport</code> can be configured with [<code>Configuration</code>] to:</p>
+<p><code>QuicUnreliableTransport</code> can be configured with <a href="https://docs.rs/dnet/latest/dnet/quic/unreliable/struct.Configuration.html"><code>Configuration</code></a> to:</p>
 <ul>
-<li>use <code>Connection::send_datagram_wait</code> when <code>wait_after_send</code> is enabled.</li>
+<li>use <a href="https://docs.rs/quinn/latest/quinn/struct.Connection.html#method.send_datagram_wait"><code>Connection::send_datagram_wait</code></a> when <code>wait_after_send</code> is enabled.</li>
 <li>optionally close the underlying connection on transport drop or close.</li>
 </ul>
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p>This is an unreliable transport.<br>
+Messages may be dropped, arrive out of order, or be delivered multiple times.</p>
+</blockquote>
 <h2 id="when-to-use-which-transport"><a class="header" href="#when-to-use-which-transport">When to use which transport</a></h2>
 <ul>
 <li>Use <code>QuicTransport</code> when you need a reliable, stream-based message channel.</li>

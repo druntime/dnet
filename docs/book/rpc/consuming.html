@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-3be1c597.js";
+            window.path_to_searchindex_js = "../searchindex-f469e81a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-9fd311d8.js"></script>
+        <script src="../toc-67c34547.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -177,7 +177,59 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <p>TODO</p>
+                        <h1 id="consuming"><a class="header" href="#consuming">Consuming</a></h1>
+<p>Consumers are used to consume the service API on the client side.</p>
+<h2 id="creating-a-consumer"><a class="header" href="#creating-a-consumer">Creating a consumer</a></h2>
+<p>The <code>#[api]</code> macro generates a <code>Consumer</code> type for your API trait.</p>
+<p>Create it with <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/trait.Consume.html#tymethod.consume"><code>Consumer::consume</code></a> function over a <code>dnet</code> transport:</p>
+<pre><code class="language-rust">use dnet::rpc::Consume;
+use dnet::{codecs::BincodeCodec, tcp::TcpTransport};
+
+let stream = tokio::net::TcpStream::connect(address).await?;
+let transport = TcpTransport::buffered(stream, BincodeCodec::default());
+let consumer = Consumer::consume(transport, Default::default(), Default::default());</code></pre>
+<h2 id="calling-remote-methods"><a class="header" href="#calling-remote-methods">Calling remote methods</a></h2>
+<p>Once the consumer is created, you call remote methods as ordinary async Rust methods:</p>
+<pre><code class="language-rust">consumer.hello_world().await?;
+let sum = consumer.add_numbers(2, 3).await?;</code></pre>
+<p>Consumer methods return (after awaiting) a <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/type.Result.html"><code>Result</code></a> which error is <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/enum.Error.html"><code>Error</code></a> inside <code>rpc</code> module.</p>
+<h2 id="stream-methods"><a class="header" href="#stream-methods">Stream methods</a></h2>
+<p>If the API declares a streaming method, the consumer call returns a stream handle:</p>
+<pre><code class="language-rust">let mut time_stream = consumer.stream_time(std::time::Duration::from_secs(1)).await?;</code></pre>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>Notice that you have to await your streaming request first - only then you will receive an actual stream instance.</p>
+</blockquote>
+<p>You can then read values from the stream until it closes:</p>
+<pre><code class="language-rust">use futures::StreamExt;
+while let Some(time) = time_stream.next().await {
+    println!("Time: {}", time);
+}</code></pre>
+<p>Streaming consumer methods return type <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/struct.Stream.html"><code>Stream</code></a> inside <code>rpc</code>’s <code>consumer</code> module.</p>
+<h2 id="aborting-requests-and-streams"><a class="header" href="#aborting-requests-and-streams">Aborting requests and streams</a></h2>
+<p>Generated request futures and stream handles support aborting.<br>
+For example:</p>
+<pre><code class="language-rust">use tokio::time::{sleep, Duration};
+
+let mut long_task_future = consumer.long_task();
+let aborter = long_task_future.aborter();
+
+tokio::select! {
+    result = &amp;mut long_task_future =&gt; {
+        println!("Task completed: {result:?}");
+    }
+
+    _ = sleep(Duration::from_secs(10)) =&gt; {
+        aborter.abort();
+        println!("Task aborted due to taking too long.");
+    }
+}</code></pre>
+<h2 id="notes"><a class="header" href="#notes">Notes</a></h2>
+<ul>
+<li>A consumer can make many requests over the same transport.</li>
+<li>Each request is matched to a response using an internal request ID.</li>
+<li>Streaming values are delivered in order until the producer closes the stream.</li>
+</ul>
 
                     </main>
 
