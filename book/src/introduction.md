@@ -6,10 +6,6 @@ Welcome to the **dnet** book.
 
 The core idea behind `dnet` is to delegate message encoding and decoding to [serde](https://serde.rs/). This allows library users to focus on the networking logic of their application instead of spending time on low-level details of the specific transport protocol used to send messages.
 
-## Work in progress
-
-This book is an early-stage work in progress and will continue to evolve.
-
 ## Security
 
 Read the [security](./security.md) section first, before using the `dnet` crate.
