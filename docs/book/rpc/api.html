@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-af6d3c6c.js";
+            window.path_to_searchindex_js = "../searchindex-f5bbe35a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a95427df.js"></script>
@@ -216,10 +216,10 @@ pub trait Api {
 <h2 id="method-types"><a class="header" href="#method-types">Method types</a></h2>
 <p>The generated API understands several kinds of methods:</p>
 <ul>
-<li>ordinary request/response methods return a value and wait for a response</li>
-<li><code>#[no_ack]</code> methods are fire-and-forget and do not wait for a response</li>
+<li>ordinary asynchronous request/response methods</li>
+<li>methods marked with <code>#[no_ack]</code> are fire-and-forget and do not wait for a response</li>
 <li>async methods that return <code>impl Stream&lt;Item = T&gt;</code> create a stream from producer to consumer</li>
-<li><code>#[abortable]</code> methods receive an extra <code>AbortionToken</code> argument that can be used to cancel the request from the consumer side</li>
+<li>methods marked with <code>#[abortable]</code> use an <code>AbortionToken</code> argument on the producer side that can be used to react to abort event triggered on the client-side</li>
 </ul>
 <h3 id="fire-and-forget-methods"><a class="header" href="#fire-and-forget-methods">Fire-and-forget methods</a></h3>
 <p>Annotate a method with <code>#[no_ack]</code> marker when the consumer should not wait for a response.
@@ -273,7 +273,7 @@ pub trait Api {
     #[into_transferable]
     async fn stream(&amp;self) -&gt; impl Stream&lt;Item = Uint32Array&gt;;
 }</code></pre>
-<p>Generated request/response enums (transferable mode) derive [<code>IntoTransferable</code>] and annotate fields appropriately. For example:</p>
+<p>Generated request/response enums (transferable mode) derive <code>IntoTransferable</code> and annotate fields appropriately. For example:</p>
 <pre><code class="language-rust">#[derive(Debug, Clone, ::dnet_js::IntoTransferable)]
 pub enum Request {
     SendTransferable { #[transferable] data: OffscreenCanvas },

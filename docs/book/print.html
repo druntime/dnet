@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-af6d3c6c.js";
+            window.path_to_searchindex_js = "searchindex-f5bbe35a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-a95427df.js"></script>
@@ -400,7 +400,7 @@ pub trait Encode {
         W: Write,
         T: Serialize;
 }</code></pre>
-<p><code>Encode</code> takes a writable sink and a serializable message. Implementations may write messages in any wire format, such as JSON, binary, or length-delimited frames.</p>
+<p><a href="https://docs.rs/dnet/latest/dnet/trait.Encode.html"><code>Encode</code></a> takes a writable sink and a serializable message. Implementations may write messages in any wire format, such as JSON, binary, or length-delimited frames.</p>
 <h2 id="decode"><a class="header" href="#decode">Decode</a></h2>
 <pre><code class="language-rust">/// Trait for decoders.
 pub trait Decode {
@@ -413,18 +413,18 @@ pub trait Decode {
         R: Read,
         for&lt;'de&gt; T: Deserialize&lt;'de&gt;;
 }</code></pre>
-<p><code>Decode</code> reads bytes from a readable source and produces a deserialized message value. The generic error type allows decoding failures to be reported precisely.</p>
+<p><a href="https://docs.rs/dnet/latest/dnet/trait.Decode.html"><code>Decode</code></a> reads bytes from a readable source and produces a deserialized message value. The generic error type allows decoding failures to be reported precisely.</p>
 <h2 id="codec-1"><a class="header" href="#codec-1">Codec</a></h2>
 <pre><code class="language-rust">/// Trait for `dnet` codecs.
 pub trait Codec: Encode + Decode {}</code></pre>
 <p><code>Codec</code> is a simple alias trait combining <code>Encode</code> and <code>Decode</code>. A <code>dnet</code> transport uses a <code>Codec</code> to transform outgoing messages into bytes and incoming bytes back into message values.</p>
 <h2 id="provided-codecs"><a class="header" href="#provided-codecs">Provided codecs</a></h2>
-<p><code>dnet</code> ships with the following codecs in <code>dnet</code>’s <a href="https://docs.rs/dnet/latest/dnet/codecs/index.html"><code>codecs</code></a> module (enabled by default or with the <code>codecs</code> feature):</p>
+<p><code>dnet</code> ships with the following codecs in <code>dnet</code>’s <a href="https://docs.rs/dnet-codecs/0.1.1/dnet_codecs/"><code>codecs</code></a> module (behind the “codecs” feature, enabled by default):</p>
 <ul>
 <li><a href="#bincode-codec"><code>BincodeCodec</code></a>
 <ul>
-<li>Binary codec using <a href="https://docs.rs/bincode/"><code>bincode</code></a>.</li>
-<li>Best for compact, fast wire format when both endpoints agree on the same Rust types.</li>
+<li>Binary codec using <a href="https://docs.rs/crate/bincode/2.0.1"><code>bincode</code></a>.</li>
+<li>Best for compact, fast wire format when size is important.</li>
 </ul>
 </li>
 <li><a href="#json-codec"><code>JsonCodec</code></a>
@@ -434,7 +434,7 @@ pub trait Codec: Encode + Decode {}</code></pre>
 </ul>
 </li>
 </ul>
-<p>In addition, <code>dnet</code> includes length-delimiting <a href="#framing-codecs">framing</a> codec for use with the <code>FramedTransport</code>:</p>
+<p>In addition, <code>dnet</code> includes length-delimiting <a href="#framing-codecs">framing</a> codec for use with the <a href="#framed-transport"><code>FramedTransport</code></a>:</p>
 <ul>
 <li><a href="#length-delimited-framing-codec"><code>length-delimited::Codec</code></a>
 <ul>
@@ -444,24 +444,23 @@ pub trait Codec: Encode + Decode {}</code></pre>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="bincode-codec"><a class="header" href="#bincode-codec"><code>bincode</code> codec</a></h1>
-<p>The <a href="https://docs.rs/dnet-codecs/0.1.0/dnet_codecs/bincode/struct.BincodeCodec.html"><code>BincodeCodec</code></a> serializes and deserializes messages using <a href="https://docs.rs/bincode/"><code>bincode</code></a>.</p>
+<p>The <a href="https://docs.rs/dnet-codecs/latest/dnet_codecs/bincode/struct.BincodeCodec.html"><code>BincodeCodec</code></a> serializes and deserializes messages using <a href="https://docs.rs/crate/bincode/2.0.1"><code>bincode</code></a>.</p>
 <h2 id="when-to-use-it"><a class="header" href="#when-to-use-it">When to use it</a></h2>
-<p>Use <code>BincodeCodec</code> when you want a fast, compact wire format and both peers agree on the same Rust data types.</p>
-<p>It is a good choice when message size and speed matter.</p>
+<p>Use <code>BincodeCodec</code> when you want a fast, compact wire format and when message size and speed matter.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="json-codec"><a class="header" href="#json-codec">JSON codec</a></h1>
-<p>The <a href="https://docs.rs/dnet-codecs/0.1.0/dnet_codecs/json/struct.JsonCodec.html"><code>JsonCodec</code></a> serializes and deserializes messages using <a href="https://docs.rs/serde_json/"><code>serde_json</code></a>. It is a text-based codec that is easy to inspect and useful for debugging, interoperability, and transport protocols that expect JSON.</p>
+<p>The <a href="https://docs.rs/dnet-codecs/latest/dnet_codecs/json/struct.JsonCodec.html"><code>JsonCodec</code></a> serializes and deserializes messages using <a href="https://docs.rs/serde_json/"><code>serde_json</code></a>. It is a text-based codec that is easy to inspect and useful for debugging and interoperability thanks to its human-readability.</p>
 <h2 id="when-to-use-it-1"><a class="header" href="#when-to-use-it-1">When to use it</a></h2>
 <p>Use <code>JsonCodec</code> when readability and interoperability are more important than binary compactness.</p>
 <p>It is a good fit for HTTP-friendly transports, browser interoperability, debugging, or when message structure must be inspected easily.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="framing-codecs"><a class="header" href="#framing-codecs">Framing codecs</a></h1>
-<p>Framing codecs are used by <a href="https://docs.rs/dnet/latest/dnet/io/framed/struct.FramedTransport.html"><code>FramedTransport</code></a>.</p>
+<p>Framing codecs are used by <a href="#framed-transport"><code>FramedTransport</code></a>.</p>
 <h2 id="what-framing-means"><a class="header" href="#what-framing-means">What framing means</a></h2>
 <p><code>FramedTransport</code> wraps a lower-level transport implementing <a href="https://docs.rs/tokio/latest/tokio/io/trait.AsyncRead.html"><code>AsyncRead</code></a> and <a href="https://docs.rs/tokio/latest/tokio/io/trait.AsyncWrite.html"><code>AsyncWrite</code></a>. That means the transport sends a continuous stream of bytes, which must first be split into frames if we want to decode them into separate messages on the receiving side.</p>
 <p>Framing codecs are responsible for this split.</p>
 <h2 id="how-framing-codecs-work"><a class="header" href="#how-framing-codecs-work">How framing codecs work</a></h2>
-<p>Framing codecs differ from normal codecs in that their error type implements <a href="https://docs.rs/dnet/latest/dnet/io/framed/trait.NotEnoughData.html"><code>NotEnoughData</code></a> — this tells <code>FramedTransport</code> that the codec needs more bytes before it can decode the incoming message.</p>
+<p>Framing codecs differ from normal codecs in that their error type implements <a href="https://docs.rs/dnet/latest/dnet/io/framed/trait.NotEnoughData.html"><code>NotEnoughData</code></a> - this tells <code>FramedTransport</code> that the codec needs more bytes before it can decode the incoming message.</p>
 <pre><code class="language-rust">/// Codecs implementing this trait can be used in [FramedTransport].
 pub trait Framing: DecodeWithMessageLength {}
 
@@ -483,7 +482,7 @@ This functionality is currently used only for logging.</p>
 <h2 id="framing-schemes"><a class="header" href="#framing-schemes">Framing schemes</a></h2>
 <p>Different frame splitting methods are possible. The <code>dnet</code> library currently includes one:</p>
 <ul>
-<li><a href="#length-delimited-framing-codec"><code>length-delimited codec</code></a> — which writes the length of each frame in bytes at the beginning of the frame.</li>
+<li><a href="#length-delimited-framing-codec"><code>length-delimited codec</code></a> - which writes the length of each frame in bytes at the beginning of the frame.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="length-delimited-framing-codec"><a class="header" href="#length-delimited-framing-codec">Length-delimited (framing) codec</a></h1>
@@ -1062,7 +1061,7 @@ The commercial package includes full source access, production-focused support, 
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="remote-procedure-call"><a class="header" href="#remote-procedure-call">Remote Procedure Call</a></h1>
-<p><code>dnet</code>’s <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/"><code>rpc</code></a> module (enabled by the “rpc” feature, which is enabled by default) provides a type-safe implementation of Remote Procedure Calls (<a href="https://en.wikipedia.org/wiki/Remote_procedure_call">RPC</a>) that works over any transport supported by <code>dnet</code>.</p>
+<p><code>dnet</code>’s <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/"><code>rpc</code></a> module (enabled with the “rpc” feature, which is enabled by default) provides a type-safe implementation of Remote Procedure Calls (<a href="https://en.wikipedia.org/wiki/Remote_procedure_call">RPC</a>) that works over any transport supported by <code>dnet</code>.</p>
 <h2 id="what-is-rpc"><a class="header" href="#what-is-rpc">What is RPC</a></h2>
 <p>Remote Procedure Call (RPC) allows code running in one execution context to invoke functions that execute in another context as if they were ordinary local function calls.</p>
 <p>The two sides may be running:</p>
@@ -1078,7 +1077,7 @@ The commercial package includes full source access, production-focused support, 
 <p>Implementing an RPC service consists of a few simple steps:</p>
 <ol>
 <li>Define your service interface (see <a href="#api">API</a> section).</li>
-<li>Implement the generated producer for your service (see <a href="#producing">Producing</a> section).</li>
+<li>Implement a producer for your service (see <a href="#producing">Producing</a> section).</li>
 <li>Establish a connection between two peers using any supported <code>dnet</code> transport.</li>
 <li>On the server side, register the service by calling <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/producer/trait.Produce.html#tymethod.produce"><code>produce(...)</code></a>.</li>
 <li>On the client side, create a typed client by calling <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/trait.Consume.html#tymethod.consume"><code>consume(...)</code></a>.</li>
@@ -1126,10 +1125,10 @@ pub trait Api {
 <h2 id="method-types"><a class="header" href="#method-types">Method types</a></h2>
 <p>The generated API understands several kinds of methods:</p>
 <ul>
-<li>ordinary request/response methods return a value and wait for a response</li>
-<li><code>#[no_ack]</code> methods are fire-and-forget and do not wait for a response</li>
+<li>ordinary asynchronous request/response methods</li>
+<li>methods marked with <code>#[no_ack]</code> are fire-and-forget and do not wait for a response</li>
 <li>async methods that return <code>impl Stream&lt;Item = T&gt;</code> create a stream from producer to consumer</li>
-<li><code>#[abortable]</code> methods receive an extra <code>AbortionToken</code> argument that can be used to cancel the request from the consumer side</li>
+<li>methods marked with <code>#[abortable]</code> use an <code>AbortionToken</code> argument on the producer side that can be used to react to abort event triggered on the client-side</li>
 </ul>
 <h3 id="fire-and-forget-methods"><a class="header" href="#fire-and-forget-methods">Fire-and-forget methods</a></h3>
 <p>Annotate a method with <code>#[no_ack]</code> marker when the consumer should not wait for a response.
@@ -1183,7 +1182,7 @@ pub trait Api {
     #[into_transferable]
     async fn stream(&amp;self) -&gt; impl Stream&lt;Item = Uint32Array&gt;;
 }</code></pre>
-<p>Generated request/response enums (transferable mode) derive [<code>IntoTransferable</code>] and annotate fields appropriately. For example:</p>
+<p>Generated request/response enums (transferable mode) derive <code>IntoTransferable</code> and annotate fields appropriately. For example:</p>
 <pre><code class="language-rust">#[derive(Debug, Clone, ::dnet_js::IntoTransferable)]
 pub enum Request {
     SendTransferable { #[transferable] data: OffscreenCanvas },
@@ -1199,7 +1198,7 @@ pub enum Response {
 <p>Read the <a href="#producing">Producing</a> page for the producer implementation details, and the <a href="#consuming">Consuming</a> page for the client-side consumption of the API.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="producing"><a class="header" href="#producing">Producing</a></h1>
-<p>A producer is the server-side implementation of your RPC API. It receives requests from consumers, executes the requested methods, and sends responses or stream items back.</p>
+<p>A producer is the server-side implementation of your RPC API. It receives requests from the consumer, executes the requested methods, and sends responses or stream items back.</p>
 <h2 id="implementing-a-producer"><a class="header" href="#implementing-a-producer">Implementing a producer</a></h2>
 <p>Suppose you have the following API:</p>
 <pre><code class="language-rust">#[api]
@@ -1239,7 +1238,7 @@ It is generated by the <code>#[api]</code> macro alongside the <code>Request</co
 </blockquote>
 <h2 id="why-not-implement-apis-async-trait"><a class="header" href="#why-not-implement-apis-async-trait">Why not implement API’s async trait?</a></h2>
 <p><code>dnet</code> deliberately does <strong>not</strong> expect producers to implement the API trait to avoid current limitations of the Rust’s async traits.</p>
-<p>Instead [<code>Produce</code>] derive macro uses <code>impl_produce!</code> internally to glue itself to methods implemented directly on your type.</p>
+<p>Instead <code>Produce</code> derive macro uses <code>impl_produce!</code> internally to glue itself to methods implemented directly on your type.</p>
 <h3 id="abortable-methods"><a class="header" href="#abortable-methods">Abortable methods</a></h3>
 <p>An abortable API method:</p>
 <pre><code class="language-rust">#[abortable]
@@ -1254,7 +1253,7 @@ async fn long_task(&amp;self);</code></pre>
 <p>The token becomes cancelled when the consumer aborts the request or stream, allowing the producer to stop any ongoing work.</p>
 <h2 id="producing-1"><a class="header" href="#producing-1">Producing</a></h2>
 <p>Once your producer implementation is ready, you can call <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/producer/trait.Produce.html#tymethod.produce"><code>produce(...)</code></a> over a <code>dnet</code> transport:</p>
-<pre><code class="language-rust">use dnet::rpc::producer::{Configuration, Produce};
+<pre><code class="language-rust">use dnet::rpc::producer::Produce;
 use dnet::{codecs::BincodeCodec, tcp::TcpTransport};
 
 let listener = tokio::net::TcpListener::bind(address).await?;
@@ -1348,7 +1347,7 @@ tokio::select! {
 <p>The incoming side is a <code>Stream</code> of <code>Result&lt;Incoming, Other&gt;</code>, where the same <code>Other</code> error type is used directly in the stream item.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>Do not wrap stream item errors in <code>dnet::Error</code>.</p>
+<p>Do <strong>not</strong> wrap stream item errors in <code>dnet::Error</code>.</p>
 </blockquote>
 <p>Example:</p>
 <pre><code class="language-rust">impl&lt;Codec, Incoming, Outgoing&gt; Stream for MyTransport&lt;Codec, Incoming, Outgoing&gt; {

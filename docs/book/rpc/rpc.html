@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-af6d3c6c.js";
+            window.path_to_searchindex_js = "../searchindex-f5bbe35a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a95427df.js"></script>
@@ -178,7 +178,7 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="remote-procedure-call"><a class="header" href="#remote-procedure-call">Remote Procedure Call</a></h1>
-<p><code>dnet</code>’s <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/"><code>rpc</code></a> module (enabled by the “rpc” feature, which is enabled by default) provides a type-safe implementation of Remote Procedure Calls (<a href="https://en.wikipedia.org/wiki/Remote_procedure_call">RPC</a>) that works over any transport supported by <code>dnet</code>.</p>
+<p><code>dnet</code>’s <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/"><code>rpc</code></a> module (enabled with the “rpc” feature, which is enabled by default) provides a type-safe implementation of Remote Procedure Calls (<a href="https://en.wikipedia.org/wiki/Remote_procedure_call">RPC</a>) that works over any transport supported by <code>dnet</code>.</p>
 <h2 id="what-is-rpc"><a class="header" href="#what-is-rpc">What is RPC</a></h2>
 <p>Remote Procedure Call (RPC) allows code running in one execution context to invoke functions that execute in another context as if they were ordinary local function calls.</p>
 <p>The two sides may be running:</p>
@@ -194,7 +194,7 @@
 <p>Implementing an RPC service consists of a few simple steps:</p>
 <ol>
 <li>Define your service interface (see <a href="./api.html">API</a> section).</li>
-<li>Implement the generated producer for your service (see <a href="./producing.html">Producing</a> section).</li>
+<li>Implement a producer for your service (see <a href="./producing.html">Producing</a> section).</li>
 <li>Establish a connection between two peers using any supported <code>dnet</code> transport.</li>
 <li>On the server side, register the service by calling <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/producer/trait.Produce.html#tymethod.produce"><code>produce(...)</code></a>.</li>
 <li>On the client side, create a typed client by calling <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/trait.Consume.html#tymethod.consume"><code>consume(...)</code></a>.</li>

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-af6d3c6c.js";
+            window.path_to_searchindex_js = "../searchindex-f5bbe35a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a95427df.js"></script>
@@ -192,7 +192,7 @@ pub trait Encode {
         W: Write,
         T: Serialize;
 }</code></pre>
-<p><code>Encode</code> takes a writable sink and a serializable message. Implementations may write messages in any wire format, such as JSON, binary, or length-delimited frames.</p>
+<p><a href="https://docs.rs/dnet/latest/dnet/trait.Encode.html"><code>Encode</code></a> takes a writable sink and a serializable message. Implementations may write messages in any wire format, such as JSON, binary, or length-delimited frames.</p>
 <h2 id="decode"><a class="header" href="#decode">Decode</a></h2>
 <pre><code class="language-rust">/// Trait for decoders.
 pub trait Decode {
@@ -205,18 +205,18 @@ pub trait Decode {
         R: Read,
         for&lt;'de&gt; T: Deserialize&lt;'de&gt;;
 }</code></pre>
-<p><code>Decode</code> reads bytes from a readable source and produces a deserialized message value. The generic error type allows decoding failures to be reported precisely.</p>
+<p><a href="https://docs.rs/dnet/latest/dnet/trait.Decode.html"><code>Decode</code></a> reads bytes from a readable source and produces a deserialized message value. The generic error type allows decoding failures to be reported precisely.</p>
 <h2 id="codec"><a class="header" href="#codec">Codec</a></h2>
 <pre><code class="language-rust">/// Trait for `dnet` codecs.
 pub trait Codec: Encode + Decode {}</code></pre>
 <p><code>Codec</code> is a simple alias trait combining <code>Encode</code> and <code>Decode</code>. A <code>dnet</code> transport uses a <code>Codec</code> to transform outgoing messages into bytes and incoming bytes back into message values.</p>
 <h2 id="provided-codecs"><a class="header" href="#provided-codecs">Provided codecs</a></h2>
-<p><code>dnet</code> ships with the following codecs in <code>dnet</code>’s <a href="https://docs.rs/dnet/latest/dnet/codecs/index.html"><code>codecs</code></a> module (enabled by default or with the <code>codecs</code> feature):</p>
+<p><code>dnet</code> ships with the following codecs in <code>dnet</code>’s <a href="https://docs.rs/dnet-codecs/0.1.1/dnet_codecs/"><code>codecs</code></a> module (behind the “codecs” feature, enabled by default):</p>
 <ul>
 <li><a href="./bincode.html"><code>BincodeCodec</code></a>
 <ul>
-<li>Binary codec using <a href="https://docs.rs/bincode/"><code>bincode</code></a>.</li>
-<li>Best for compact, fast wire format when both endpoints agree on the same Rust types.</li>
+<li>Binary codec using <a href="https://docs.rs/crate/bincode/2.0.1"><code>bincode</code></a>.</li>
+<li>Best for compact, fast wire format when size is important.</li>
 </ul>
 </li>
 <li><a href="./json.html"><code>JsonCodec</code></a>
@@ -226,7 +226,7 @@ pub trait Codec: Encode + Decode {}</code></pre>
 </ul>
 </li>
 </ul>
-<p>In addition, <code>dnet</code> includes length-delimiting <a href="framing/framing.html">framing</a> codec for use with the <code>FramedTransport</code>:</p>
+<p>In addition, <code>dnet</code> includes length-delimiting <a href="framing/framing.html">framing</a> codec for use with the <a href="../transports/framed.html"><code>FramedTransport</code></a>:</p>
 <ul>
 <li><a href="framing/length-delimited.html"><code>length-delimited::Codec</code></a>
 <ul>

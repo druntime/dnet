@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-af6d3c6c.js";
+            window.path_to_searchindex_js = "searchindex-f5bbe35a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-a95427df.js"></script>
@@ -198,7 +198,7 @@
 <p>The incoming side is a <code>Stream</code> of <code>Result&lt;Incoming, Other&gt;</code>, where the same <code>Other</code> error type is used directly in the stream item.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>Do not wrap stream item errors in <code>dnet::Error</code>.</p>
+<p>Do <strong>not</strong> wrap stream item errors in <code>dnet::Error</code>.</p>
 </blockquote>
 <p>Example:</p>
 <pre><code class="language-rust">impl&lt;Codec, Incoming, Outgoing&gt; Stream for MyTransport&lt;Codec, Incoming, Outgoing&gt; {
