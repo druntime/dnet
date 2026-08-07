@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f469e81a.js";
+            window.path_to_searchindex_js = "searchindex-af6d3c6c.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-67c34547.js"></script>
+        <script src="toc-a95427df.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -203,7 +203,6 @@ pub struct ClientMessage {
 }</code></pre>
 <h2 id="transport"><a class="header" href="#transport">Transport</a></h2>
 <p>A transport wraps an underlying I/O channel and provides <code>dnet</code> message send/receive operations.</p>
-<p>Here we are using TCP, but the same concepts apply to other transports such as WebSocket, UDP, channel transport, etc.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>Different transports require different setup of the underlying protocol/channel/etc. before they can wrap them. See the transport documentation for details.</p>
@@ -217,7 +216,7 @@ let mut transport = TcpTransport::&lt;_, _, ClientMessage, ServerMessage&gt;::bu
     BincodeCodec::default(),
 );</code></pre>
 <h2 id="sending"><a class="header" href="#sending">Sending</a></h2>
-<p>Send values with <code>future</code>’s <code>Sink</code> <a href="https://docs.rs/futures/latest/futures/sink/trait.SinkExt.html#method.send"><code>send(...)</code></a>:</p>
+<p>Send values with <code>future</code>’s <code>SinkExt</code> <a href="https://docs.rs/futures/latest/futures/sink/trait.SinkExt.html#method.send"><code>send(...)</code></a>:</p>
 <pre><code class="language-rust">use futures::SinkExt;
 
 transport.send(ServerMessage { 
@@ -225,7 +224,7 @@ transport.send(ServerMessage {
     some_int: 42 
 }).await?;</code></pre>
 <h2 id="receiving"><a class="header" href="#receiving">Receiving</a></h2>
-<p>Receive values with <code>future</code>’s <code>Stream</code> <a href="https://docs.rs/futures/latest/futures/stream/trait.StreamExt.html#method.next"><code>next()</code></a>:</p>
+<p>Receive values with <code>future</code>’s <code>StreamExt</code> <a href="https://docs.rs/futures/latest/futures/stream/trait.StreamExt.html#method.next"><code>next()</code></a>:</p>
 <pre><code class="language-rust">use futures::StreamExt;
 
 match transport.next().await {
@@ -270,7 +269,7 @@ transport.enable_logging();</code></pre>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="security.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="transport-contract.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
@@ -284,7 +283,7 @@ transport.enable_logging();</code></pre>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="security.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="transport-contract.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 

@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f469e81a.js";
+            window.path_to_searchindex_js = "searchindex-af6d3c6c.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-67c34547.js"></script>
+        <script src="toc-a95427df.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -189,12 +189,30 @@
 <ul>
 <li>What <code>dnet</code> is and when to use it</li>
 <li>How to work with common transports such as TCP, UDP, QUIC, WebSocket, MessagePort and transport for communication with web workers</li>
-<li>How to build applications that share messaging logic between native and browser environments</li>
 <li>How to extend <code>dnet</code> with new transports or custom codecs</li>
 <li>How to implement <a href="https://en.wikipedia.org/wiki/Remote_procedure_call">RPC</a> over <code>dnet</code> transports</li>
 </ul>
 <h2 id="getting-started"><a class="header" href="#getting-started">Getting started</a></h2>
 <p>If you are new to <code>dnet</code>, it’s best to start by learning the <a href="#core-concepts">core concepts</a> of <code>dnet</code> and then explore the <a href="https://github.com/druntime/dnet/tree/main/dnet/examples">examples</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="security-1"><a class="header" href="#security-1">Security</a></h1>
+<p>Security is intentionally left out of scope of the <code>dnet</code> crate.</p>
+<p><code>dnet</code> project provides a transport abstraction and networking implementation helpers, it focuses on flexible transport composition and message delivery semantics, but it does not provide encryption, authentication, or other security primitives by itself.</p>
+<h2 id="recommended-security-model"><a class="header" href="#recommended-security-model">Recommended security model</a></h2>
+<ul>
+<li>Use <code>dnet</code> over insecure transports only in trusted or local environments.</li>
+<li>For untrusted networks, rely on a secure underlying transport layer (like TCP + TLS or QUIC - assuming secure configuration).</li>
+</ul>
+<p>Always read underlying transport documentation to learn about its security semantics.</p>
+<h2 id="implementing-secure-protocols-over-dnet-transports"><a class="header" href="#implementing-secure-protocols-over-dnet-transports">Implementing secure protocols over <code>dnet</code> transports</a></h2>
+<p>Building a custom secure protocol on top of <code>dnet</code> transports, wrapping insecure lower-level protocols - like UDP or raw TCP without TLS - is technically possible, but not recommended for most users.</p>
+<p>If you choose to do this, follow these guidelines:</p>
+<ol>
+<li>Prefer well-vetted cryptographic libraries and protocols.</li>
+<li>Keep cryptographic responsibilities separate from the <code>dnet</code> transport logic.</li>
+<li>Avoid inventing custom encryption schemes unless you are a cryptography expert.</li>
+</ol>
+<p>For most applications it’s best to use an existing underlying secure transport layer instead of building security directly into <code>dnet</code> messages.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="core-concepts"><a class="header" href="#core-concepts">Core concepts</a></h1>
 <p>In <code>dnet</code>, there are three central concepts that structure how messaging works:</p>
@@ -219,12 +237,12 @@ struct IncomingMessage {
     timestamp: u64,
 }</code></pre>
 <h2 id="codec"><a class="header" href="#codec">Codec</a></h2>
-<p>A <code>Codec</code> is a struct that defines how messages are encoded and decoded.</p>
+<p>A “Codec” is a struct(/enum) implementing <code>dnet</code>’s <a href="https://docs.rs/dnet/latest/dnet/trait.Codec.html"><code>Codec</code></a> that defines how messages are encoded and decoded.</p>
 <p>The codec is passed as a parameter to a <code>Transport</code> and is responsible for converting message values to and from a wire format.</p>
-<p><a href="https://docs.rs/dnet/latest/dnet/trait.Codec.html"><code>Codec</code></a> implementations work with message types that implement <a href="https://serde.rs/">Serde</a>’s <a href="https://docs.rs/serde/latest/serde/trait.Serialize.html"><code>Serialize</code></a> and <a href="https://docs.rs/serde/latest/serde/trait.Deserialize.html"><code>Deserialize</code></a> traits.</p>
+<p>“Codec” implementations work with message types that implement <a href="https://serde.rs/">Serde</a>’s <a href="https://docs.rs/serde/latest/serde/trait.Serialize.html"><code>Serialize</code></a> and <a href="https://docs.rs/serde/latest/serde/trait.Deserialize.html"><code>Deserialize</code></a> traits.</p>
 <pre><code class="language-rust">let codec = dnet::codecs::BincodeCodec::default();</code></pre>
 <h2 id="transport"><a class="header" href="#transport">Transport</a></h2>
-<p>A <code>Transport</code> is a struct defined by the <code>dnet</code> library (or by a third-party implementation that adheres to the <code>dnet</code> transport contract).</p>
+<p>A <code>Transport</code> is a struct(/enum) defined by the <code>dnet</code> library (or by a third-party implementation that adheres to the <code>dnet</code> transport contract).</p>
 <p>A transport wraps a lower-level networking protocol (like TCP or UDP), channel, or other communication medium and provides an asynchronous interface for sending and receiving messages.</p>
 <p>See <a href="#transport-contract">Transport contract</a> for details on the <code>dnet</code> transport interface.</p>
 <pre><code class="language-rust">use futures::SinkExt;
@@ -279,25 +297,6 @@ impl&lt;T, Incoming, Outgoing, Error&gt; Transport&lt;Incoming, Outgoing, Error&
 <p><code>conditional::Logging</code> extends <a href="https://docs.rs/dnet/latest/dnet/trait.Logging.html"><code>logging::Logging</code></a> when “logging” feature is enabled; it’s an empty trait otherwise.</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="security-1"><a class="header" href="#security-1">Security</a></h1>
-<p>Security is intentionally left out of scope of the <code>dnet</code> crate.</p>
-<p><code>dnet</code> project provides a transport abstraction and networking implementation helpers, it focuses on flexible transport composition and message delivery semantics, but it does not provide encryption, authentication, or other security primitives by itself.</p>
-<h2 id="recommended-security-model"><a class="header" href="#recommended-security-model">Recommended security model</a></h2>
-<ul>
-<li>Use <code>dnet</code> over insecure transports only in trusted or local environments.</li>
-<li>For untrusted networks, rely on a secure underlying transport layer (like TCP + TLS or QUIC - assuming secure configuration).</li>
-</ul>
-<p>Always read underlying transport documentation to learn about its security semantics.</p>
-<h2 id="implementing-secure-protocols-over-dnet-transports"><a class="header" href="#implementing-secure-protocols-over-dnet-transports">Implementing secure protocols over <code>dnet</code> transports</a></h2>
-<p>Building a custom secure protocol on top of <code>dnet</code> transports, wrapping insecure lower-level protocols - like UDP or raw TCP without TLS - is technically possible, but not recommended for most users.</p>
-<p>If you choose to do this, follow these guidelines:</p>
-<ol>
-<li>Prefer well-vetted cryptographic libraries and protocols.</li>
-<li>Keep cryptographic responsibilities separate from the <code>dnet</code> transport logic.</li>
-<li>Avoid inventing custom encryption schemes unless you are a cryptography expert.</li>
-</ol>
-<p>For most applications it’s best to use an existing underlying secure transport layer instead of building security directly into <code>dnet</code> messages.</p>
-<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="how-to-use-dnet"><a class="header" href="#how-to-use-dnet">How to use <code>dnet</code></a></h1>
 <p><code>dnet</code> is a easy-to-use async messaging abstraction. You define the message shapes your application needs, choose a transport and a codec, then send and receive messages over that transport.</p>
 <p>This page uses TCP examples, but the same concepts apply to other transports such as WebSocket, UDP, channel transport, etc.</p>
@@ -324,7 +323,6 @@ pub struct ClientMessage {
 }</code></pre>
 <h2 id="transport-1"><a class="header" href="#transport-1">Transport</a></h2>
 <p>A transport wraps an underlying I/O channel and provides <code>dnet</code> message send/receive operations.</p>
-<p>Here we are using TCP, but the same concepts apply to other transports such as WebSocket, UDP, channel transport, etc.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>Different transports require different setup of the underlying protocol/channel/etc. before they can wrap them. See the transport documentation for details.</p>
@@ -338,7 +336,7 @@ let mut transport = TcpTransport::&lt;_, _, ClientMessage, ServerMessage&gt;::bu
     BincodeCodec::default(),
 );</code></pre>
 <h2 id="sending"><a class="header" href="#sending">Sending</a></h2>
-<p>Send values with <code>future</code>’s <code>Sink</code> <a href="https://docs.rs/futures/latest/futures/sink/trait.SinkExt.html#method.send"><code>send(...)</code></a>:</p>
+<p>Send values with <code>future</code>’s <code>SinkExt</code> <a href="https://docs.rs/futures/latest/futures/sink/trait.SinkExt.html#method.send"><code>send(...)</code></a>:</p>
 <pre><code class="language-rust">use futures::SinkExt;
 
 transport.send(ServerMessage { 
@@ -346,7 +344,7 @@ transport.send(ServerMessage {
     some_int: 42 
 }).await?;</code></pre>
 <h2 id="receiving"><a class="header" href="#receiving">Receiving</a></h2>
-<p>Receive values with <code>future</code>’s <code>Stream</code> <a href="https://docs.rs/futures/latest/futures/stream/trait.StreamExt.html#method.next"><code>next()</code></a>:</p>
+<p>Receive values with <code>future</code>’s <code>StreamExt</code> <a href="https://docs.rs/futures/latest/futures/stream/trait.StreamExt.html#method.next"><code>next()</code></a>:</p>
 <pre><code class="language-rust">use futures::StreamExt;
 
 match transport.next().await {
