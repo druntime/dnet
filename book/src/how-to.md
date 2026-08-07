@@ -42,8 +42,6 @@ pub struct ClientMessage {
 
 A transport wraps an underlying I/O channel and provides `dnet` message send/receive operations.
 
-Here we are using TCP, but the same concepts apply to other transports such as WebSocket, UDP, channel transport, etc.
-
 > [!NOTE]
 > Different transports require different setup of the underlying protocol/channel/etc. before they can wrap them. See the transport documentation for details.
 
@@ -60,7 +58,7 @@ let mut transport = TcpTransport::<_, _, ClientMessage, ServerMessage>::buffered
 
 ## Sending
 
-Send values with `future`'s `Sink` [`send(...)`](https://docs.rs/futures/latest/futures/sink/trait.SinkExt.html#method.send):
+Send values with `future`'s `SinkExt` [`send(...)`](https://docs.rs/futures/latest/futures/sink/trait.SinkExt.html#method.send):
 
 ```rust
 use futures::SinkExt;
@@ -73,7 +71,7 @@ transport.send(ServerMessage {
 
 ## Receiving
 
-Receive values with `future`'s `Stream` [`next()`](https://docs.rs/futures/latest/futures/stream/trait.StreamExt.html#method.next):
+Receive values with `future`'s `StreamExt` [`next()`](https://docs.rs/futures/latest/futures/stream/trait.StreamExt.html#method.next):
 
 ```rust
 use futures::StreamExt;

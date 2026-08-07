@@ -1,9 +1,9 @@
 # Summary
 
 [Introduction](./introduction.md)
+[Security](./security.md)
 [Core concepts](./core-concepts.md)
 [Transport contract](./transport-contract.md)
-[Security](./security.md)
 [How to use `dnet`](./how-to.md)
 
 ---

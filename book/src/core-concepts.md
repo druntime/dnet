@@ -29,11 +29,11 @@ struct IncomingMessage {
 
 ## Codec
 
-A `Codec` is a struct that defines how messages are encoded and decoded.
+A "Codec" is a struct(/enum) implementing `dnet`'s [`Codec`](https://docs.rs/dnet/latest/dnet/trait.Codec.html) that defines how messages are encoded and decoded.
 
 The codec is passed as a parameter to a `Transport` and is responsible for converting message values to and from a wire format.
 
-[`Codec`](https://docs.rs/dnet/latest/dnet/trait.Codec.html) implementations work with message types that implement [Serde](https://serde.rs/)'s [`Serialize`](https://docs.rs/serde/latest/serde/trait.Serialize.html) and [`Deserialize`](https://docs.rs/serde/latest/serde/trait.Deserialize.html) traits.
+"Codec" implementations work with message types that implement [Serde](https://serde.rs/)'s [`Serialize`](https://docs.rs/serde/latest/serde/trait.Serialize.html) and [`Deserialize`](https://docs.rs/serde/latest/serde/trait.Deserialize.html) traits.
 
 ```rust
 let codec = dnet::codecs::BincodeCodec::default();
@@ -41,7 +41,7 @@ let codec = dnet::codecs::BincodeCodec::default();
 
 ## Transport
 
-A `Transport` is a struct defined by the `dnet` library (or by a third-party implementation that adheres to the `dnet` transport contract).
+A `Transport` is a struct(/enum) defined by the `dnet` library (or by a third-party implementation that adheres to the `dnet` transport contract).
 
 A transport wraps a lower-level networking protocol (like TCP or UDP), channel, or other communication medium and provides an asynchronous interface for sending and receiving messages.
 
