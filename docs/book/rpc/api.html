@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f5bbe35a.js";
+            window.path_to_searchindex_js = "../searchindex-7812757a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a95427df.js"></script>
@@ -203,10 +203,10 @@ pub trait Api {
 }</code></pre>
 <p>The macro generates the following items:</p>
 <ul>
-<li><code>Request</code> enum — serializable request payloads for each method</li>
-<li><code>Response</code> enum — serializable response payloads and stream items</li>
-<li><code>Consumer</code> struct — client-side API for making RPC calls</li>
-<li><code>impl_produce</code> macro — producer-side helper for wiring your implementation to the RPC runtime</li>
+<li><code>Request</code> enum - serializable request payloads for each method</li>
+<li><code>Response</code> enum - serializable response payloads and stream items</li>
+<li><code>Consumer</code> struct - client-side API for making RPC calls</li>
+<li><code>impl_produce</code> macro - producer-side helper for wiring your implementation to the RPC runtime</li>
 </ul>
 <blockquote class="blockquote-tag blockquote-tag-warning">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
@@ -235,13 +235,13 @@ The consumer can abort a request or stream, and the token allows the producer to
 If you need to disable serialization for one or both enums, use the <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/attr.no_serde.html"><code>#[no_serde]</code></a> attribute.</p>
 <p>The <code>#[no_serde]</code> macro can be used as:</p>
 <ul>
-<li><code>#[no_serde]</code> — disable serialization for both request and response</li>
-<li><code>#[no_serde(request)]</code> — disable (de)serialization for request only</li>
-<li><code>#[no_serde(response)]</code> — disable (de)serialization for response only</li>
-<li><code>#[no_serde(request_serialize)]</code> — disable request serialization only</li>
-<li><code>#[no_serde(request_deserialize)]</code> — disable request deserialization only</li>
-<li><code>#[no_serde(response_serialize)]</code> — disable response serialization only</li>
-<li><code>#[no_serde(response_deserialize)]</code> — disable response deserialization only</li>
+<li><code>#[no_serde]</code> - disable serialization for both request and response</li>
+<li><code>#[no_serde(request)]</code> - disable (de)serialization for request only</li>
+<li><code>#[no_serde(response)]</code> - disable (de)serialization for response only</li>
+<li><code>#[no_serde(request_serialize)]</code> - disable request serialization only</li>
+<li><code>#[no_serde(request_deserialize)]</code> - disable request deserialization only</li>
+<li><code>#[no_serde(response_serialize)]</code> - disable response serialization only</li>
+<li><code>#[no_serde(response_deserialize)]</code> - disable response deserialization only</li>
 </ul>
 <p>This is useful when used with arguments/return types that are not serializable and RPC is meant to be used over <code>dnet</code> transports that don’t require serialization before sending messages or message encoding/decoding is meant to be implemented manually, using non-<code>serde</code> scheme.</p>
 <h2 id="transferable-objects"><a class="header" href="#transferable-objects">Transferable objects</a></h2>

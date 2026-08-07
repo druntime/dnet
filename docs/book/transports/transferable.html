@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f5bbe35a.js";
+            window.path_to_searchindex_js = "../searchindex-7812757a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a95427df.js"></script>
@@ -207,7 +207,7 @@ It may be used to store codec, works buffers, etc., required for message seriali
 <p>If you only need serializable messages - without transferable objects - prefer <a href="https://docs.rs/dnet-js/latest/dnet_js/struct.Transport.html"><code>dnet::js::Transport</code></a> or its more specialized variants, such as <a href="https://docs.rs/dnet/latest/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html"><code>MessagePortTransport</code></a> or <a href="https://docs.rs/dnet/latest/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html"><code>WebWorkerTransport</code></a>.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>When directly using <code>dnet::js::Transport</code> over a <code>MessagePort</code>, remember to call <a href="https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html#method.start"><code>port.start()</code></a> on both sides before sending messages.</p>
+<p>When directly using this or <code>dnet::js::Transport</code> over a <code>MessagePort</code>, remember to call <a href="https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html#method.start"><code>port.start()</code></a> on both sides before sending messages.</p>
 </blockquote>
 <h2 id="implementing-intotransferable-and-fromtransferable"><a class="header" href="#implementing-intotransferable-and-fromtransferable">Implementing <code>IntoTransferable</code> and <code>FromTransferable</code></a></h2>
 <p>Implementing <code>IntoTransferable</code>, <code>FromTransferable</code> and <code>Transferable</code> manually is straightforward, but can be tedious.</p>

@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f5bbe35a.js";
+            window.path_to_searchindex_js = "../searchindex-7812757a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a95427df.js"></script>
@@ -180,7 +180,7 @@
                         <h1 id="length-delimited-transport"><a class="header" href="#length-delimited-transport">Length-delimited transport</a></h1>
 <p>The <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.LengthDelimitedTransport.html"><code>LengthDelimitedTransport</code></a> is a convenience wrapper around the <a href="./framed.html"><code>FramedTransport</code></a>  transport that uses a length-delimited framing codec.</p>
 <p>It prefixes each message with a 4‑byte big-endian length (in bytes) and then writes the encoded message payload. This is the common framing scheme when sending discrete messages over a byte stream (for example TCP, IPC, or QUIC streams).</p>
-<p>Under the hood the module composes a <a href="./framed.html"><code>FramedTransport</code></a> with <a href="../codecs/framing/length_delimited.html"><code>dnet::io::length_delimited::Codec</code></a>, so you get the same framed transport semantics but with the length-prefixed codec already set up.</p>
+<p>Under the hood the module composes a <a href="./framed.html"><code>FramedTransport</code></a> with <a href="../codecs/framing/length-delimited.html"><code>dnet::io::length_delimited::Codec</code></a>, so you get the same framed transport semantics but with the length-prefixed codec already set up.</p>
 <h2 id="when-to-use"><a class="header" href="#when-to-use">When to use</a></h2>
 <p>Use <code>LengthDelimitedTransport</code> when you want a simple length-prefixed framing for sending serialized messages over a byte stream.</p>
 <p>If you need a different framing scheme, use <a href="./framed.html"><code>FramedTransport</code></a> directly with a custom codec.</p>

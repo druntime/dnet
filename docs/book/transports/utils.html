@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f5bbe35a.js";
+            window.path_to_searchindex_js = "../searchindex-7812757a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a95427df.js"></script>
@@ -180,20 +180,20 @@
                         <h1 id="dnet-utilities"><a class="header" href="#dnet-utilities"><code>dnet</code> utilities</a></h1>
 <p><code>dnet</code> comes with the following set of utilities (under “utils” feature, enabled by default):</p>
 <ul>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/filter/struct.Filtering.html"><code>Filtering</code></a> — wraps a transport and drops incoming or outgoing messages based on a predicate.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/map/struct.Mapping.html"><code>Mapping</code></a> — adapts a transport to a different message type by mapping outgoing messages and unmapping incoming ones.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split2.html"><code>Split2</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split3.html"><code>Split3</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split4.html"><code>Split4</code></a>, and <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split5.html"><code>Split5</code></a> — <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/index.html">split</a> a transport carrying a tagged message enum into multiple transports with different message types.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrapping.html"><code>Unwrapping</code></a> — converts incoming messages that implement <a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrap.html"><code>Unwrap</code></a> into their inner payloads.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/latest/struct.Latest.html"><code>Latest</code></a> — wraps a numbered transport and only exposes the newest messages, discarding older ones.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/struct.ChannelTransport.html"><code>ChannelTransport</code></a> — transport over <a href="https://github.com/rust-lang/futures-rs">futures</a> channels, useful for testing and debugging. Can be conveniently created with <a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/fn.transports.html"><code>transports()</code></a> function.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/merge/struct.MergedTransport.html"><code>MergedTransport</code></a> — merges a <a href="https://docs.rs/futures/latest/futures/sink/trait.Sink.html">sink</a> and <a href="https://docs.rs/futures/latest/futures/stream/trait.Stream.html">stream</a> into a single transport.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/number/struct.Numbered.html"><code>Numbered</code></a> — wraps a transport and adds sequence numbers to messages.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/wall/struct.Wall.html"><code>Wall</code></a> — a transport that rejects every operation, returning an error on send, receive, flush, or close.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/void/struct.Void.html"><code>Void</code></a> — a transport that accepts outgoing messages (but “sends” them into a ‘void’) and never produces incoming ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/filter/struct.Filtering.html"><code>Filtering</code></a> - wraps a transport and drops incoming or outgoing messages based on a predicate.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/map/struct.Mapping.html"><code>Mapping</code></a> - adapts a transport to a different message type by mapping outgoing messages and unmapping incoming ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split2.html"><code>Split2</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split3.html"><code>Split3</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split4.html"><code>Split4</code></a>, and <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split5.html"><code>Split5</code></a> - <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/index.html">split</a> a transport carrying a tagged message enum into multiple transports with different message types.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrapping.html"><code>Unwrapping</code></a> - converts incoming messages that implement <a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrap.html"><code>Unwrap</code></a> into their inner payloads.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/latest/struct.Latest.html"><code>Latest</code></a> - wraps a numbered transport and only exposes the newest messages, discarding older ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/struct.ChannelTransport.html"><code>ChannelTransport</code></a> - transport over <a href="https://github.com/rust-lang/futures-rs">futures</a> channels, useful for testing and debugging. Can be conveniently created with <a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/fn.transports.html"><code>transports()</code></a> function.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/merge/struct.MergedTransport.html"><code>MergedTransport</code></a> - merges a <a href="https://docs.rs/futures/latest/futures/sink/trait.Sink.html">sink</a> and <a href="https://docs.rs/futures/latest/futures/stream/trait.Stream.html">stream</a> into a single transport.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/number/struct.Numbered.html"><code>Numbered</code></a> - wraps a transport and adds sequence numbers to messages.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/wall/struct.Wall.html"><code>Wall</code></a> - a transport that rejects every operation, returning an error on send, receive, flush, or close.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/void/struct.Void.html"><code>Void</code></a> - a transport that accepts outgoing messages (but “sends” them into a ‘void’) and never produces incoming ones.</li>
 </ul>
 <p>And:</p>
 <ul>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/pipe/struct.Pipe.html"><code>Pipe</code></a> — connects two transports in both directions so messages can flow back and forth. It is not a transport itself; it is a helper for linking two transports together.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/pipe/struct.Pipe.html"><code>Pipe</code></a> - connects two transports in both directions so messages can flow back and forth. It is not a transport itself; it is a helper for linking two transports together.</li>
 </ul>
 
                     </main>

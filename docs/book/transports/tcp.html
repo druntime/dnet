@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f5bbe35a.js";
+            window.path_to_searchindex_js = "../searchindex-7812757a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a95427df.js"></script>
@@ -181,7 +181,7 @@
 <p>TCP transport wrappers in <code>dnet</code> are intended for Tokio TCP streams and can be used for plain TCP or TLS-over-TCP.</p>
 <ul>
 <li><a href="https://docs.rs/dnet/latest/dnet/tcp/framed/struct.TcpFramedTransport.html"><code>TcpFramedTransport</code></a> requires a codec implementing <a href="https://docs.rs/dnet/latest/dnet/io/framed/trait.Framing.html"><code>Framing</code></a>.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/tcp/struct.TcpTransport.html"><code>TcpTransport</code></a> uses <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.Codec.html"><code>length_delimited::Codec</code></a> to frame messages.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/tcp/struct.TcpTransport.html"><code>TcpTransport</code></a> uses <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.LengthDelimitedTransport.html"><code>length_delimited::Codec</code></a> to frame messages.</li>
 </ul>
 <h2 id="buffered-constructors"><a class="header" href="#buffered-constructors">Buffered constructors</a></h2>
 <p>The <code>buffered</code> variants are recommended when the transport sees many small messages or when you want to reduce syscall overhead.

@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f5bbe35a.js";
+            window.path_to_searchindex_js = "searchindex-7812757a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-a95427df.js"></script>
@@ -530,7 +530,7 @@ transport.enable_logging();</code></pre>
 <p>TCP transport wrappers in <code>dnet</code> are intended for Tokio TCP streams and can be used for plain TCP or TLS-over-TCP.</p>
 <ul>
 <li><a href="https://docs.rs/dnet/latest/dnet/tcp/framed/struct.TcpFramedTransport.html"><code>TcpFramedTransport</code></a> requires a codec implementing <a href="https://docs.rs/dnet/latest/dnet/io/framed/trait.Framing.html"><code>Framing</code></a>.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/tcp/struct.TcpTransport.html"><code>TcpTransport</code></a> uses <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.Codec.html"><code>length_delimited::Codec</code></a> to frame messages.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/tcp/struct.TcpTransport.html"><code>TcpTransport</code></a> uses <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.LengthDelimitedTransport.html"><code>length_delimited::Codec</code></a> to frame messages.</li>
 </ul>
 <h2 id="buffered-constructors"><a class="header" href="#buffered-constructors">Buffered constructors</a></h2>
 <p>The <code>buffered</code> variants are recommended when the transport sees many small messages or when you want to reduce syscall overhead.
@@ -654,9 +654,9 @@ println!("received {:?} from {}", message, peer_addr);</code></pre>
 <p><code>dnet</code> provides wrappers around Quinn primitives. The QUIC implementation includes both reliable stream-based transports over <a href="https://docs.rs/quinn/latest/quinn/struct.SendStream.html"><code>SendStream</code></a>/<a href="https://docs.rs/quinn/latest/quinn/struct.RecvStream.html"><code>RecvStream</code></a> and an unreliable datagram transport over <a href="https://docs.rs/quinn/latest/quinn/struct.Connection.html"><code>Connection</code></a>.</p>
 <h2 id="available-transports"><a class="header" href="#available-transports">Available transports</a></h2>
 <ul>
-<li><a href="https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html"><code>QuicFramedTransport</code></a> — <a href="#framed-transport">framed</a> transport for QUIC streams.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/quic/struct.QuicTransport.html"><code>QuicTransport</code></a> — length-delimited transport for QUIC streams.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/quic/unreliable/struct.QuicUnreliableTransport.html"><code>QuicUnreliableTransport</code></a> — unreliable datagram transport built on QUIC datagrams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html"><code>QuicFramedTransport</code></a> - <a href="#framed-transport">framed</a> transport for QUIC streams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/struct.QuicTransport.html"><code>QuicTransport</code></a> - length-delimited transport for QUIC streams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/unreliable/struct.QuicUnreliableTransport.html"><code>QuicUnreliableTransport</code></a> - unreliable datagram transport built on QUIC datagrams.</li>
 </ul>
 <h2 id="reliable-quic-streams"><a class="header" href="#reliable-quic-streams">Reliable QUIC streams</a></h2>
 <p><code>QuicTransport</code> is the most convenient option for typical message passing over QUIC streams. It composes <code>QuicFramedTransport</code> with <a href="#length-delimited-framing-codec"><code>dnet::io::length_delimited::Codec</code></a>.</p>
@@ -730,7 +730,7 @@ Messages may be dropped, arrive out of order, or be delivered multiple times.</p
 <h1 id="length-delimited-transport"><a class="header" href="#length-delimited-transport">Length-delimited transport</a></h1>
 <p>The <a href="https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.LengthDelimitedTransport.html"><code>LengthDelimitedTransport</code></a> is a convenience wrapper around the <a href="#framed-transport"><code>FramedTransport</code></a>  transport that uses a length-delimited framing codec.</p>
 <p>It prefixes each message with a 4‑byte big-endian length (in bytes) and then writes the encoded message payload. This is the common framing scheme when sending discrete messages over a byte stream (for example TCP, IPC, or QUIC streams).</p>
-<p>Under the hood the module composes a <a href="#framed-transport"><code>FramedTransport</code></a> with <a href="codecs/framing/length_delimited.html"><code>dnet::io::length_delimited::Codec</code></a>, so you get the same framed transport semantics but with the length-prefixed codec already set up.</p>
+<p>Under the hood the module composes a <a href="#framed-transport"><code>FramedTransport</code></a> with <a href="#length-delimited-framing-codec"><code>dnet::io::length_delimited::Codec</code></a>, so you get the same framed transport semantics but with the length-prefixed codec already set up.</p>
 <h2 id="when-to-use"><a class="header" href="#when-to-use">When to use</a></h2>
 <p>Use <code>LengthDelimitedTransport</code> when you want a simple length-prefixed framing for sending serialized messages over a byte stream.</p>
 <p>If you need a different framing scheme, use <a href="#framed-transport"><code>FramedTransport</code></a> directly with a custom codec.</p>
@@ -825,24 +825,15 @@ transport.send(format!("hello from worker: {}", request)).await?;</code></pre>
 <p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html"><code>MessagePortTransport</code></a> wraps a browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessagePort"><code>MessagePort</code></a> and exposes it as a <code>dnet</code> transport.
 It is useful when you need a dedicated channel between two JavaScript contexts, such as:</p>
 <ul>
-<li>
-<p>two sides of a <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel"><code>MessageChannel</code></a>,</p>
-</li>
-<li>
-<p>a page and an iframe,</p>
-</li>
-<li>
-<p>a page and a worker when the port is passed with <code>postMessage()</code>,</p>
-</li>
-<li>
-<p>or any other API that uses <code>MessagePort</code>.</p>
-</li>
-<li>
-<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new"><code>MessagePortTransport::new(port, codec).await</code></a> creates a transport over the given <code>MessagePort</code>.</p>
-</li>
-<li>
-<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new_with_name"><code>MessagePortTransport::new_with_name(port, codec, name).await</code></a> creates a named transport.</p>
-</li>
+<li>two sides of a <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel"><code>MessageChannel</code></a>,</li>
+<li>a page and an iframe,</li>
+<li>a page and a worker when the port is passed with <code>postMessage()</code>,</li>
+<li>or any other API that uses <code>MessagePort</code>.</li>
+</ul>
+<p>Constructors:</p>
+<ul>
+<li><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new"><code>MessagePortTransport::new(port, codec).await</code></a> creates a transport over the given <code>MessagePort</code>.</li>
+<li><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new_with_name"><code>MessagePortTransport::new_with_name(port, codec, name).await</code></a> creates a named transport.</li>
 </ul>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
@@ -902,7 +893,7 @@ It may be used to store codec, works buffers, etc., required for message seriali
 <p>If you only need serializable messages - without transferable objects - prefer <a href="https://docs.rs/dnet-js/latest/dnet_js/struct.Transport.html"><code>dnet::js::Transport</code></a> or its more specialized variants, such as <a href="https://docs.rs/dnet/latest/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html"><code>MessagePortTransport</code></a> or <a href="https://docs.rs/dnet/latest/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html"><code>WebWorkerTransport</code></a>.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>When directly using <code>dnet::js::Transport</code> over a <code>MessagePort</code>, remember to call <a href="https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html#method.start"><code>port.start()</code></a> on both sides before sending messages.</p>
+<p>When directly using this or <code>dnet::js::Transport</code> over a <code>MessagePort</code>, remember to call <a href="https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html#method.start"><code>port.start()</code></a> on both sides before sending messages.</p>
 </blockquote>
 <h2 id="implementing-intotransferable-and-fromtransferable"><a class="header" href="#implementing-intotransferable-and-fromtransferable">Implementing <code>IntoTransferable</code> and <code>FromTransferable</code></a></h2>
 <p>Implementing <code>IntoTransferable</code>, <code>FromTransferable</code> and <code>Transferable</code> manually is straightforward, but can be tedious.</p>
@@ -1044,20 +1035,20 @@ The commercial package includes full source access, production-focused support, 
 <h1 id="dnet-utilities"><a class="header" href="#dnet-utilities"><code>dnet</code> utilities</a></h1>
 <p><code>dnet</code> comes with the following set of utilities (under “utils” feature, enabled by default):</p>
 <ul>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/filter/struct.Filtering.html"><code>Filtering</code></a> — wraps a transport and drops incoming or outgoing messages based on a predicate.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/map/struct.Mapping.html"><code>Mapping</code></a> — adapts a transport to a different message type by mapping outgoing messages and unmapping incoming ones.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split2.html"><code>Split2</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split3.html"><code>Split3</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split4.html"><code>Split4</code></a>, and <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split5.html"><code>Split5</code></a> — <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/index.html">split</a> a transport carrying a tagged message enum into multiple transports with different message types.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrapping.html"><code>Unwrapping</code></a> — converts incoming messages that implement <a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrap.html"><code>Unwrap</code></a> into their inner payloads.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/latest/struct.Latest.html"><code>Latest</code></a> — wraps a numbered transport and only exposes the newest messages, discarding older ones.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/struct.ChannelTransport.html"><code>ChannelTransport</code></a> — transport over <a href="https://github.com/rust-lang/futures-rs">futures</a> channels, useful for testing and debugging. Can be conveniently created with <a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/fn.transports.html"><code>transports()</code></a> function.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/merge/struct.MergedTransport.html"><code>MergedTransport</code></a> — merges a <a href="https://docs.rs/futures/latest/futures/sink/trait.Sink.html">sink</a> and <a href="https://docs.rs/futures/latest/futures/stream/trait.Stream.html">stream</a> into a single transport.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/number/struct.Numbered.html"><code>Numbered</code></a> — wraps a transport and adds sequence numbers to messages.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/wall/struct.Wall.html"><code>Wall</code></a> — a transport that rejects every operation, returning an error on send, receive, flush, or close.</li>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/void/struct.Void.html"><code>Void</code></a> — a transport that accepts outgoing messages (but “sends” them into a ‘void’) and never produces incoming ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/filter/struct.Filtering.html"><code>Filtering</code></a> - wraps a transport and drops incoming or outgoing messages based on a predicate.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/map/struct.Mapping.html"><code>Mapping</code></a> - adapts a transport to a different message type by mapping outgoing messages and unmapping incoming ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split2.html"><code>Split2</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split3.html"><code>Split3</code></a>, <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split4.html"><code>Split4</code></a>, and <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/trait.Split5.html"><code>Split5</code></a> - <a href="https://docs.rs/dnet-utils/latest/dnet_utils/split/index.html">split</a> a transport carrying a tagged message enum into multiple transports with different message types.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrapping.html"><code>Unwrapping</code></a> - converts incoming messages that implement <a href="https://docs.rs/dnet-utils/latest/dnet_utils/unwrap/trait.Unwrap.html"><code>Unwrap</code></a> into their inner payloads.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/latest/struct.Latest.html"><code>Latest</code></a> - wraps a numbered transport and only exposes the newest messages, discarding older ones.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/struct.ChannelTransport.html"><code>ChannelTransport</code></a> - transport over <a href="https://github.com/rust-lang/futures-rs">futures</a> channels, useful for testing and debugging. Can be conveniently created with <a href="https://docs.rs/dnet-utils/latest/dnet_utils/channel/fn.transports.html"><code>transports()</code></a> function.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/merge/struct.MergedTransport.html"><code>MergedTransport</code></a> - merges a <a href="https://docs.rs/futures/latest/futures/sink/trait.Sink.html">sink</a> and <a href="https://docs.rs/futures/latest/futures/stream/trait.Stream.html">stream</a> into a single transport.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/number/struct.Numbered.html"><code>Numbered</code></a> - wraps a transport and adds sequence numbers to messages.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/wall/struct.Wall.html"><code>Wall</code></a> - a transport that rejects every operation, returning an error on send, receive, flush, or close.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/void/struct.Void.html"><code>Void</code></a> - a transport that accepts outgoing messages (but “sends” them into a ‘void’) and never produces incoming ones.</li>
 </ul>
 <p>And:</p>
 <ul>
-<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/pipe/struct.Pipe.html"><code>Pipe</code></a> — connects two transports in both directions so messages can flow back and forth. It is not a transport itself; it is a helper for linking two transports together.</li>
+<li><a href="https://docs.rs/dnet-utils/latest/dnet_utils/pipe/struct.Pipe.html"><code>Pipe</code></a> - connects two transports in both directions so messages can flow back and forth. It is not a transport itself; it is a helper for linking two transports together.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="remote-procedure-call"><a class="header" href="#remote-procedure-call">Remote Procedure Call</a></h1>
@@ -1112,10 +1103,10 @@ pub trait Api {
 }</code></pre>
 <p>The macro generates the following items:</p>
 <ul>
-<li><code>Request</code> enum — serializable request payloads for each method</li>
-<li><code>Response</code> enum — serializable response payloads and stream items</li>
-<li><code>Consumer</code> struct — client-side API for making RPC calls</li>
-<li><code>impl_produce</code> macro — producer-side helper for wiring your implementation to the RPC runtime</li>
+<li><code>Request</code> enum - serializable request payloads for each method</li>
+<li><code>Response</code> enum - serializable response payloads and stream items</li>
+<li><code>Consumer</code> struct - client-side API for making RPC calls</li>
+<li><code>impl_produce</code> macro - producer-side helper for wiring your implementation to the RPC runtime</li>
 </ul>
 <blockquote class="blockquote-tag blockquote-tag-warning">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
@@ -1144,13 +1135,13 @@ The consumer can abort a request or stream, and the token allows the producer to
 If you need to disable serialization for one or both enums, use the <a href="https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/attr.no_serde.html"><code>#[no_serde]</code></a> attribute.</p>
 <p>The <code>#[no_serde]</code> macro can be used as:</p>
 <ul>
-<li><code>#[no_serde]</code> — disable serialization for both request and response</li>
-<li><code>#[no_serde(request)]</code> — disable (de)serialization for request only</li>
-<li><code>#[no_serde(response)]</code> — disable (de)serialization for response only</li>
-<li><code>#[no_serde(request_serialize)]</code> — disable request serialization only</li>
-<li><code>#[no_serde(request_deserialize)]</code> — disable request deserialization only</li>
-<li><code>#[no_serde(response_serialize)]</code> — disable response serialization only</li>
-<li><code>#[no_serde(response_deserialize)]</code> — disable response deserialization only</li>
+<li><code>#[no_serde]</code> - disable serialization for both request and response</li>
+<li><code>#[no_serde(request)]</code> - disable (de)serialization for request only</li>
+<li><code>#[no_serde(response)]</code> - disable (de)serialization for response only</li>
+<li><code>#[no_serde(request_serialize)]</code> - disable request serialization only</li>
+<li><code>#[no_serde(request_deserialize)]</code> - disable request deserialization only</li>
+<li><code>#[no_serde(response_serialize)]</code> - disable response serialization only</li>
+<li><code>#[no_serde(response_deserialize)]</code> - disable response deserialization only</li>
 </ul>
 <p>This is useful when used with arguments/return types that are not serializable and RPC is meant to be used over <code>dnet</code> transports that don’t require serialization before sending messages or message encoding/decoding is meant to be implemented manually, using non-<code>serde</code> scheme.</p>
 <h2 id="transferable-objects"><a class="header" href="#transferable-objects">Transferable objects</a></h2>

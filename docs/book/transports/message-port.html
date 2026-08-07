@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f5bbe35a.js";
+            window.path_to_searchindex_js = "../searchindex-7812757a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a95427df.js"></script>
@@ -181,24 +181,15 @@
 <p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html"><code>MessagePortTransport</code></a> wraps a browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessagePort"><code>MessagePort</code></a> and exposes it as a <code>dnet</code> transport.
 It is useful when you need a dedicated channel between two JavaScript contexts, such as:</p>
 <ul>
-<li>
-<p>two sides of a <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel"><code>MessageChannel</code></a>,</p>
-</li>
-<li>
-<p>a page and an iframe,</p>
-</li>
-<li>
-<p>a page and a worker when the port is passed with <code>postMessage()</code>,</p>
-</li>
-<li>
-<p>or any other API that uses <code>MessagePort</code>.</p>
-</li>
-<li>
-<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new"><code>MessagePortTransport::new(port, codec).await</code></a> creates a transport over the given <code>MessagePort</code>.</p>
-</li>
-<li>
-<p><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new_with_name"><code>MessagePortTransport::new_with_name(port, codec, name).await</code></a> creates a named transport.</p>
-</li>
+<li>two sides of a <a href="https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel"><code>MessageChannel</code></a>,</li>
+<li>a page and an iframe,</li>
+<li>a page and a worker when the port is passed with <code>postMessage()</code>,</li>
+<li>or any other API that uses <code>MessagePort</code>.</li>
+</ul>
+<p>Constructors:</p>
+<ul>
+<li><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new"><code>MessagePortTransport::new(port, codec).await</code></a> creates a transport over the given <code>MessagePort</code>.</li>
+<li><a href="https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new_with_name"><code>MessagePortTransport::new_with_name(port, codec, name).await</code></a> creates a named transport.</li>
 </ul>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>

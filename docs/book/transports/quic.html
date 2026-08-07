@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-f5bbe35a.js";
+            window.path_to_searchindex_js = "../searchindex-7812757a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-a95427df.js"></script>
@@ -181,9 +181,9 @@
 <p><code>dnet</code> provides wrappers around Quinn primitives. The QUIC implementation includes both reliable stream-based transports over <a href="https://docs.rs/quinn/latest/quinn/struct.SendStream.html"><code>SendStream</code></a>/<a href="https://docs.rs/quinn/latest/quinn/struct.RecvStream.html"><code>RecvStream</code></a> and an unreliable datagram transport over <a href="https://docs.rs/quinn/latest/quinn/struct.Connection.html"><code>Connection</code></a>.</p>
 <h2 id="available-transports"><a class="header" href="#available-transports">Available transports</a></h2>
 <ul>
-<li><a href="https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html"><code>QuicFramedTransport</code></a> — <a href="./framed.html">framed</a> transport for QUIC streams.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/quic/struct.QuicTransport.html"><code>QuicTransport</code></a> — length-delimited transport for QUIC streams.</li>
-<li><a href="https://docs.rs/dnet/latest/dnet/quic/unreliable/struct.QuicUnreliableTransport.html"><code>QuicUnreliableTransport</code></a> — unreliable datagram transport built on QUIC datagrams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html"><code>QuicFramedTransport</code></a> - <a href="./framed.html">framed</a> transport for QUIC streams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/struct.QuicTransport.html"><code>QuicTransport</code></a> - length-delimited transport for QUIC streams.</li>
+<li><a href="https://docs.rs/dnet/latest/dnet/quic/unreliable/struct.QuicUnreliableTransport.html"><code>QuicUnreliableTransport</code></a> - unreliable datagram transport built on QUIC datagrams.</li>
 </ul>
 <h2 id="reliable-quic-streams"><a class="header" href="#reliable-quic-streams">Reliable QUIC streams</a></h2>
 <p><code>QuicTransport</code> is the most convenient option for typical message passing over QUIC streams. It composes <code>QuicFramedTransport</code> with <a href="../codecs/framing/length-delimited.html"><code>dnet::io::length_delimited::Codec</code></a>.</p>
