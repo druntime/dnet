@@ -8,6 +8,8 @@ It is useful when you need a dedicated channel between two JavaScript contexts, 
 - a page and a worker when the port is passed with `postMessage()`,
 - or any other API that uses `MessagePort`.
 
+Constructors:
+
 - [`MessagePortTransport::new(port, codec).await`](https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new) creates a transport over the given `MessagePort`.
 - [`MessagePortTransport::new_with_name(port, codec, name).await`](https://docs.rs/dnet/0.1.4/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html#method.new_with_name) creates a named transport.
 

@@ -4,7 +4,7 @@ The [`LengthDelimitedTransport`](https://docs.rs/dnet/latest/dnet/io/length_deli
 
 It prefixes each message with a 4‑byte big-endian length (in bytes) and then writes the encoded message payload. This is the common framing scheme when sending discrete messages over a byte stream (for example TCP, IPC, or QUIC streams).
 
-Under the hood the module composes a [`FramedTransport`](./framed.md) with [`dnet::io::length_delimited::Codec`](../codecs/framing/length_delimited.md), so you get the same framed transport semantics but with the length-prefixed codec already set up.
+Under the hood the module composes a [`FramedTransport`](./framed.md) with [`dnet::io::length_delimited::Codec`](../codecs/framing/length-delimited.md), so you get the same framed transport semantics but with the length-prefixed codec already set up.
 
 ## When to use
 

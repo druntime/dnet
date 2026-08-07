@@ -4,9 +4,9 @@
 
 ## Available transports
 
-- [`QuicFramedTransport`](https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html) — [framed](./framed.md) transport for QUIC streams.
-- [`QuicTransport`](https://docs.rs/dnet/latest/dnet/quic/struct.QuicTransport.html) — length-delimited transport for QUIC streams.
-- [`QuicUnreliableTransport`](https://docs.rs/dnet/latest/dnet/quic/unreliable/struct.QuicUnreliableTransport.html) — unreliable datagram transport built on QUIC datagrams.
+- [`QuicFramedTransport`](https://docs.rs/dnet/latest/dnet/quic/framed/struct.QuicFramedTransport.html) - [framed](./framed.md) transport for QUIC streams.
+- [`QuicTransport`](https://docs.rs/dnet/latest/dnet/quic/struct.QuicTransport.html) - length-delimited transport for QUIC streams.
+- [`QuicUnreliableTransport`](https://docs.rs/dnet/latest/dnet/quic/unreliable/struct.QuicUnreliableTransport.html) - unreliable datagram transport built on QUIC datagrams.
 
 ## Reliable QUIC streams
 

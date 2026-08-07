@@ -32,10 +32,10 @@ pub trait Api {
 
 The macro generates the following items:
 
-- `Request` enum — serializable request payloads for each method
-- `Response` enum — serializable response payloads and stream items
-- `Consumer` struct — client-side API for making RPC calls
-- `impl_produce` macro — producer-side helper for wiring your implementation to the RPC runtime
+- `Request` enum - serializable request payloads for each method
+- `Response` enum - serializable response payloads and stream items
+- `Consumer` struct - client-side API for making RPC calls
+- `impl_produce` macro - producer-side helper for wiring your implementation to the RPC runtime
 
 > [!WARNING]
 > The generated types (`Request`, `Response`, `Consumer`, and `impl_produce`) have fixed names. Because of this, defining multiple `#[api]` traits in the same Rust module will result in name collisions.
@@ -73,13 +73,13 @@ If you need to disable serialization for one or both enums, use the [`#[no_serde
 
 The `#[no_serde]` macro can be used as:
 
-- `#[no_serde]` — disable serialization for both request and response
-- `#[no_serde(request)]` — disable (de)serialization for request only
-- `#[no_serde(response)]` — disable (de)serialization for response only
-- `#[no_serde(request_serialize)]` — disable request serialization only
-- `#[no_serde(request_deserialize)]` — disable request deserialization only
-- `#[no_serde(response_serialize)]` — disable response serialization only
-- `#[no_serde(response_deserialize)]` — disable response deserialization only
+- `#[no_serde]` - disable serialization for both request and response
+- `#[no_serde(request)]` - disable (de)serialization for request only
+- `#[no_serde(response)]` - disable (de)serialization for response only
+- `#[no_serde(request_serialize)]` - disable request serialization only
+- `#[no_serde(request_deserialize)]` - disable request deserialization only
+- `#[no_serde(response_serialize)]` - disable response serialization only
+- `#[no_serde(response_deserialize)]` - disable response deserialization only
 
 This is useful when used with arguments/return types that are not serializable and RPC is meant to be used over `dnet` transports that don't require serialization before sending messages or message encoding/decoding is meant to be implemented manually, using non-`serde` scheme.
 

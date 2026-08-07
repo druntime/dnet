@@ -30,7 +30,7 @@ Use `TransferableTransport` when you need to send browser [transferable objects]
 If you only need serializable messages - without transferable objects - prefer [`dnet::js::Transport`](https://docs.rs/dnet-js/latest/dnet_js/struct.Transport.html) or its more specialized variants, such as [`MessagePortTransport`](https://docs.rs/dnet/latest/wasm32-unknown-unknown/dnet/message_port/struct.MessagePortTransport.html) or [`WebWorkerTransport`](https://docs.rs/dnet/latest/wasm32-unknown-unknown/dnet/webworker/struct.WebWorkerTransport.html).
 
 > [!NOTE]
-> When directly using `dnet::js::Transport` over a `MessagePort`, remember to call [`port.start()`](https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html#method.start) on both sides before sending messages.
+> When directly using this or `dnet::js::Transport` over a `MessagePort`, remember to call [`port.start()`](https://docs.rs/web-sys/latest/web_sys/struct.MessagePort.html#method.start) on both sides before sending messages.
 
 ## Implementing `IntoTransferable` and `FromTransferable`
 

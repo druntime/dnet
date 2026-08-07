@@ -3,7 +3,7 @@
 TCP transport wrappers in `dnet` are intended for Tokio TCP streams and can be used for plain TCP or TLS-over-TCP.
 
 - [`TcpFramedTransport`](https://docs.rs/dnet/latest/dnet/tcp/framed/struct.TcpFramedTransport.html) requires a codec implementing [`Framing`].
-- [`TcpTransport`](https://docs.rs/dnet/latest/dnet/tcp/struct.TcpTransport.html) uses [`length_delimited::Codec`] to frame messages.
+- [`TcpTransport`](https://docs.rs/dnet/latest/dnet/tcp/struct.TcpTransport.html) uses [`length_delimited::Codec`](https://docs.rs/dnet/latest/dnet/io/length_delimited/struct.LengthDelimitedTransport.html) to frame messages.
 
 ## Buffered constructors
 
