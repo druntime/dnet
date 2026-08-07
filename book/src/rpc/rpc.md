@@ -1,6 +1,6 @@
 # Remote Procedure Call
 
-`dnet`'s [`rpc`](https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/) module (enabled by the "rpc" feature, which is enabled by default) provides a type-safe implementation of Remote Procedure Calls ([RPC](https://en.wikipedia.org/wiki/Remote_procedure_call)) that works over any transport supported by `dnet`.
+`dnet`'s [`rpc`](https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/) module (enabled with the "rpc" feature, which is enabled by default) provides a type-safe implementation of Remote Procedure Calls ([RPC](https://en.wikipedia.org/wiki/Remote_procedure_call)) that works over any transport supported by `dnet`.
 
 ## What is RPC
 
@@ -21,7 +21,7 @@ With `dnet`, you define your API once as a Rust trait, implement it on one side,
 Implementing an RPC service consists of a few simple steps:
 
 1. Define your service interface (see [API](./api.md) section).
-2. Implement the generated producer for your service (see [Producing](./producing.md) section).
+2. Implement a producer for your service (see [Producing](./producing.md) section).
 3. Establish a connection between two peers using any supported `dnet` transport.
 4. On the server side, register the service by calling [`produce(...)`](https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/producer/trait.Produce.html#tymethod.produce).
 5. On the client side, create a typed client by calling [`consume(...)`](https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/consumer/trait.Consume.html#tymethod.consume).

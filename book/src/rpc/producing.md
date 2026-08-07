@@ -1,6 +1,6 @@
 # Producing
 
-A producer is the server-side implementation of your RPC API. It receives requests from consumers, executes the requested methods, and sends responses or stream items back.
+A producer is the server-side implementation of your RPC API. It receives requests from the consumer, executes the requested methods, and sends responses or stream items back.
 
 ## Implementing a producer
 
@@ -52,7 +52,7 @@ The [`Produce`](https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/derive.Produce.html) der
 
 `dnet` deliberately does **not** expect producers to implement the API trait to avoid current limitations of the Rust's async traits.
 
-Instead [`Produce`] derive macro uses `impl_produce!` internally to glue itself to methods implemented directly on your type.
+Instead `Produce` derive macro uses `impl_produce!` internally to glue itself to methods implemented directly on your type.
 
 ### Abortable methods
 
@@ -81,7 +81,7 @@ The token becomes cancelled when the consumer aborts the request or stream, allo
 Once your producer implementation is ready, you can call [`produce(...)`](https://docs.rs/dnet-rpc/0.1.1/dnet_rpc/producer/trait.Produce.html#tymethod.produce) over a `dnet` transport:
 
 ```rust
-use dnet::rpc::producer::{Configuration, Produce};
+use dnet::rpc::producer::Produce;
 use dnet::{codecs::BincodeCodec, tcp::TcpTransport};
 
 let listener = tokio::net::TcpListener::bind(address).await?;

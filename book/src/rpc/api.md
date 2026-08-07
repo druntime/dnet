@@ -46,10 +46,10 @@ The macro generates the following items:
 
 The generated API understands several kinds of methods:
 
-- ordinary request/response methods return a value and wait for a response
-- `#[no_ack]` methods are fire-and-forget and do not wait for a response
+- ordinary asynchronous request/response methods
+- methods marked with `#[no_ack]` are fire-and-forget and do not wait for a response
 - async methods that return `impl Stream<Item = T>` create a stream from producer to consumer
-- `#[abortable]` methods receive an extra `AbortionToken` argument that can be used to cancel the request from the consumer side
+- methods marked with `#[abortable]` use an `AbortionToken` argument on the producer side that can be used to react to abort event triggered on the client-side
 
 ### Fire-and-forget methods
 
@@ -122,7 +122,7 @@ pub trait Api {
 }
 ```
 
-Generated request/response enums (transferable mode) derive [`IntoTransferable`] and annotate fields appropriately. For example:
+Generated request/response enums (transferable mode) derive `IntoTransferable` and annotate fields appropriately. For example:
 
 ```rust
 #[derive(Debug, Clone, ::dnet_js::IntoTransferable)]

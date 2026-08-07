@@ -1,6 +1,6 @@
 # Framing codecs
 
-Framing codecs are used by [`FramedTransport`](https://docs.rs/dnet/latest/dnet/io/framed/struct.FramedTransport.html).
+Framing codecs are used by [`FramedTransport`](../../transports/framed.md).
 
 ## What framing means
 
@@ -10,7 +10,7 @@ Framing codecs are responsible for this split.
 
 ## How framing codecs work
 
-Framing codecs differ from normal codecs in that their error type implements [`NotEnoughData`](https://docs.rs/dnet/latest/dnet/io/framed/trait.NotEnoughData.html) — this tells `FramedTransport` that the codec needs more bytes before it can decode the incoming message.
+Framing codecs differ from normal codecs in that their error type implements [`NotEnoughData`](https://docs.rs/dnet/latest/dnet/io/framed/trait.NotEnoughData.html) - this tells `FramedTransport` that the codec needs more bytes before it can decode the incoming message.
 
 ```rust
 /// Codecs implementing this trait can be used in [FramedTransport].
@@ -34,4 +34,4 @@ This functionality is currently used only for logging.
 ## Framing schemes
 
 Different frame splitting methods are possible. The `dnet` library currently includes one:
-- [`length-delimited codec`](./length-delimited.md) — which writes the length of each frame in bytes at the beginning of the frame.
+- [`length-delimited codec`](./length-delimited.md) - which writes the length of each frame in bytes at the beginning of the frame.

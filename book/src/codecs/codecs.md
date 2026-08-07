@@ -20,7 +20,7 @@ pub trait Encode {
 }
 ```
 
-`Encode` takes a writable sink and a serializable message. Implementations may write messages in any wire format, such as JSON, binary, or length-delimited frames.
+[`Encode`](https://docs.rs/dnet/latest/dnet/trait.Encode.html) takes a writable sink and a serializable message. Implementations may write messages in any wire format, such as JSON, binary, or length-delimited frames.
 
 ## Decode
 
@@ -38,7 +38,7 @@ pub trait Decode {
 }
 ```
 
-`Decode` reads bytes from a readable source and produces a deserialized message value. The generic error type allows decoding failures to be reported precisely.
+[`Decode`](https://docs.rs/dnet/latest/dnet/trait.Decode.html) reads bytes from a readable source and produces a deserialized message value. The generic error type allows decoding failures to be reported precisely.
 
 ## Codec
 
@@ -51,19 +51,19 @@ pub trait Codec: Encode + Decode {}
 
 ## Provided codecs
 
-`dnet` ships with the following codecs in `dnet`'s [`codecs`](https://docs.rs/dnet/latest/dnet/codecs/index.html) module (enabled by default or with the `codecs` feature):
+`dnet` ships with the following codecs in `dnet`'s [`codecs`](https://docs.rs/dnet-codecs/0.1.1/dnet_codecs/) module (behind the "codecs" feature, enabled by default):
 
 - [`BincodeCodec`](./bincode.md)
   - Binary codec using [`bincode`].
-  - Best for compact, fast wire format when both endpoints agree on the same Rust types.
+  - Best for compact, fast wire format when size is important.
 - [`JsonCodec`](./json.md)
   - Text codec using [`serde_json`].
   - Best for readable, interoperable payloads and debugging.
 
-In addition, `dnet` includes length-delimiting [framing](framing/framing.md) codec for use with the `FramedTransport`:
+In addition, `dnet` includes length-delimiting [framing](framing/framing.md) codec for use with the [`FramedTransport`](../transports/framed.md):
 
 - [`length-delimited::Codec`](framing/length-delimited.md)
   - Prefixes each frame with its length in bytes.
 
-[`bincode`]: https://docs.rs/bincode/
+[`bincode`]: https://docs.rs/crate/bincode/2.0.1
 [`serde_json`]: https://docs.rs/serde_json/

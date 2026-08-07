@@ -29,7 +29,7 @@ impl<Codec, Incoming, Outgoing> Sink<Outgoing> for MyTransport<Codec, Incoming, 
 The incoming side is a `Stream` of `Result<Incoming, Other>`, where the same `Other` error type is used directly in the stream item.
 
 > [!NOTE]
-> Do not wrap stream item errors in `dnet::Error`.
+> Do **not** wrap stream item errors in `dnet::Error`.
 
 Example:
 
