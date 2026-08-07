@@ -245,7 +245,7 @@ mod tests {
     #[test]
     fn test_modify_trait() {
         let expected = quote! {
-            /// Public api.
+            /// Public API.
             pub trait Api {
                 /// Print "Hello World!" message on the server.
                 #[no_ack]

@@ -90,7 +90,7 @@ mod tests {
 
     fn api() -> TokenStream {
         quote! {
-            /// Public api.
+            /// Public API.
             pub trait Api {
                 /// Print "Hello World!" message on the server.
                 #[no_ack]
@@ -120,7 +120,7 @@ mod tests {
 
     fn api_with_transferable() -> TokenStream {
         quote! {
-            /// Public api.
+            /// Public API.
             pub trait Api {
                 /// Send OffscreenCanvas to the worker.
                 async fn send_transferable(&self, #[transferable] data: OffscreenCanvas);

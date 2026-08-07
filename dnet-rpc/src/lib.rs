@@ -21,7 +21,7 @@ pub use dnet_base;
 pub use atomic_counter;
 pub use futures;
 
-/// Macro for marking traits defining api's interface.
+/// Macro for marking traits defining API's interface.
 ///
 /// It will generate the following:
 /// - `Consumer` struct implementing [Consume] trait - which can be used to make requests,
@@ -47,14 +47,14 @@ pub use dnet_macros::api;
 /// Use without arguments - `#[no_serde]` - is equivalent to `#[no_serde(request, response)]`.
 pub use dnet_macros::no_serde;
 
-/// Marker for api functions that are "fire-and-forget" - they return as soon as request is
+/// Marker for API functions that are "fire-and-forget" - they return as soon as request is
 /// sent to the producer without waiting for response - in fact producer won't even send it.
 ///
 /// It is useful for cases of one-directional communication where you don't care about
 /// the producer finishing the task.
 pub use dnet_macros::no_ack;
 
-/// Marker for api functions that will provide producer with
+/// Marker for API functions that will provide producer with
 /// [AbortionToken](crate::producer::abortable::AbortionToken)
 /// which will be triggered when consumer aborts the request.
 ///
