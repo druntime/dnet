@@ -85,7 +85,7 @@ pub struct Matrix3(pub [f32; 9]);
 impl Matrix3 {
     pub fn normal(m: Matrix4) -> Self {
         let m = m.0;
-        // Upper-left 3×3 of a rotation/scale matrix — works correctly when there
+        // Upper-left 3×3 of a rotation/scale matrix - works correctly when there
         // is no non-uniform scale (i.e. pure rotation, which is our case).
         Matrix3([m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9], m[10]])
     }

@@ -92,7 +92,7 @@ impl Logger {
 
     /// Log that the transport was opened successfully.
     ///
-    /// Note: not all transports emit an "open" event — transports that do
+    /// Note: not all transports emit an "open" event - transports that do
     /// not wait for an explicit open should skip calling this.
     #[inline]
     pub fn log_open_success(&self) {
